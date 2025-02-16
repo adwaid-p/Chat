@@ -56,9 +56,20 @@ module.exports.loginUser = async (req, res, next) => {
     }
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+    
+    // res.cookies('token',token)
+
     res.status(200).json({ token, user });
   } catch (error) {
     next(error);
     console.log(error)
   }
 };
+
+module.exports.getProfile = async (req, res, next) => {
+  try {
+    res.status(200).json(req.user);
+  } catch (error) {
+    next(error);
+  }
+}
