@@ -3,6 +3,7 @@ const { validationResult } = require("express-validator");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const userModel = require("../models/user.model");
+const blackListTokenModel = require("../models/BlackListToken.model");
 
 module.exports.registerUser = async (req, res, next) => {
   try {
@@ -26,7 +27,9 @@ module.exports.registerUser = async (req, res, next) => {
       password: hashedPassword,
     });
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "24h",
+    });
 
     res.status(201).json({ token, user });
   } catch (error) {
@@ -55,14 +58,16 @@ module.exports.loginUser = async (req, res, next) => {
       return res.status(401).json({ message: "Invalid email or password" });
     }
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
-    
-    // res.cookies('token',token)
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "24h",
+    });
+
+    res.cookie("token", token);
 
     res.status(200).json({ token, user });
   } catch (error) {
     next(error);
-    console.log(error)
+    console.log(error);
   }
 };
 
@@ -72,4 +77,13 @@ module.exports.getProfile = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
-}
+};
+
+module.exports.logoutUser = async (req, res, next) => {
+  res.clearCookie("token");
+  const token = req.cookies.token || req.headers.authorization.split(" ")[1];
+
+  await blackListTokenModel.create({ token });
+
+  res.status(200).json({ message: "Logged out" });
+};
