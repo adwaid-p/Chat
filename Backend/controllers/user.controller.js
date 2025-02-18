@@ -87,3 +87,22 @@ module.exports.logoutUser = async (req, res, next) => {
 
   res.status(200).json({ message: "Logged out" });
 };
+
+module.exports.searchUser = async (req, res, next) => {
+try {
+  const { query } = req.query;
+  if (!query) {
+    return res.status(400).json({ message: "Query is needed" });
+  }
+  const users = await userModel.find({
+    $or: [
+      { userName: { $regex: query, $options: "i" } },
+      { email: { $regex: query, $options: "i" } },
+    ],
+  }).select('-password');
+
+  res.status(200).json(users)
+} catch (error) {
+  res.status(400).json({message: 'Server error', error: error.message})
+}
+};

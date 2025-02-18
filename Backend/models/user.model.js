@@ -18,6 +18,23 @@ const userSchema = new mongoose.Schema({
         minlength : [4, 'Password must be 4 charecter long'],
         select : false,
     },
+    profilePic : {
+        type : String,
+        default : 'https://cdn-icons-png.flaticon.com/512/149/149071.png',
+        required : true,
+    },
+    friends: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    }],
+    isOnline : {
+        type : Boolean,
+        default : false
+    },
+    lastSeen : {
+        type : Date,
+        default : Date.now
+    },
     socketId : {
         type : String,
     }

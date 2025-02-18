@@ -1,8 +1,9 @@
 import React from 'react'
 
-const Contact = () => {
+const Contact = ({friend}) => {
+  console.log(friend)
   return (
-    <div className='w-full px-5 py-6 bg-[#222e43] rounded-md'>Contact</div>
+    <div className='w-full px-5 py-5 bg-[#222e43] rounded-md'>{friend.userName}</div>
   )
 }
 

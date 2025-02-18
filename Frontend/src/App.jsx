@@ -5,6 +5,7 @@ import Register from './Pages/Register'
 import MainPage from './Pages/MainPage'
 import UserProtectWrapper from './Pages/UserProtectWrapper'
 import LogOut from './Pages/LogOut'
+import 'remixicon/fonts/remixicon.css'
 
 function App() {
 

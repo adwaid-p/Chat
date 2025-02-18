@@ -20,4 +20,6 @@ router.get('/profile',authMiddleware.authUser,userController.getProfile)
 
 router.get('/logout',authMiddleware.authUser,userController.logoutUser)
 
+router.get('/search',userController.searchUser)
+
 module.exports = router
