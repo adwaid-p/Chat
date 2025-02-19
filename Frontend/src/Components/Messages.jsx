@@ -8,6 +8,7 @@ const Messages = () => {
   const [suggestions, setSuggestions] = useState([])
   const [loading, setLoading] = useState(false)
   const [friends, setFriends] = useState([])
+  const [currentUser,setCurrentUser] = useState('')
 
   const fetchSuggestion = async () => {
     if (!search) {
@@ -26,6 +27,49 @@ const Messages = () => {
     }
   }
 
+  const addFriend = async(friendId)=>{
+    try {
+      const userId = JSON.parse(localStorage.getItem('user_id'))
+      // console.log('the user id is',userId)
+      // console.log('the friend id is',friendId)
+      const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/user/update_friend`,{userId,friendId})
+      // console.log('the resonse data is after updation',response.data)
+      setFriends(response.data.friends)
+    } catch (error) {
+      console.error('Error in fetching data is : ', error.message)
+    }
+  }
+
+
+
+useEffect(() => {
+  const findUser = async()=>{
+
+    try {
+          const userId = JSON.parse(localStorage.getItem('user_id'))
+    // const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/user/find_User`,{userId})
+    const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/user/find_User?id=${userId}`);
+    // const data = response.data
+    setCurrentUser(response.data)
+    // console.log(data)
+    } catch (error) {
+      console.log('Error while fetching Data',error.message)
+    }
+
+   }
+   findUser()
+    // setCurrentUser(findUser())
+    // console.log('the current user data: ',currentUser)
+}, [])
+
+useEffect(() => {
+  if(currentUser?.friends){
+    setFriends(currentUser?.friends)
+  }
+}, [currentUser])
+
+
+
   useEffect(() => {
     const timeOut = setTimeout(() => {
       fetchSuggestion(search)
@@ -41,13 +85,14 @@ const Messages = () => {
         {search &&
           <div className='w-[250px] mt-3 bg-[#141b28] p-5 fixed flex flex-col gap-5'>
             {
-              loading?(
+              loading ? (
                 <p>Searching...</p>
-              ):(
-                suggestions.map((user)=>(
+              ) : (
+                suggestions.map((user) => (
                   // console.log(user)
-                  <div key={user._id} className='flex items-center gap-2' onClick={()=>{
-                    setFriends(prevFriends => [...prevFriends, user]);
+                  <div key={user._id} className='flex items-center gap-2' onClick={() => {
+                    // setFriends(prevFriends => [...prevFriends, user]);
+                    addFriend(user._id)
                     // console.log('the friends are',friends)
                     setSearch('')
                   }}>
@@ -62,9 +107,9 @@ const Messages = () => {
       </div>
       <div className='h-full overflow-y-auto flex flex-col gap-2 pr-2'>
         {
-          friends.map((friend)=>(
+          friends.map((friend) => (
             // console.log(friend)
-            <Contact key={friend._id} friend={friend}/>
+            <Contact key={friend} friend={friend}/>
           ))
         }
       </div>

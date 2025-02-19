@@ -89,20 +89,63 @@ module.exports.logoutUser = async (req, res, next) => {
 };
 
 module.exports.searchUser = async (req, res, next) => {
-try {
-  const { query } = req.query;
-  if (!query) {
-    return res.status(400).json({ message: "Query is needed" });
-  }
-  const users = await userModel.find({
-    $or: [
-      { userName: { $regex: query, $options: "i" } },
-      { email: { $regex: query, $options: "i" } },
-    ],
-  }).select('-password');
+  try {
+    const { query } = req.query;
+    if (!query) {
+      return res.status(400).json({ message: "Query is needed" });
+    }
+    const users = await userModel
+      .find({
+        $or: [
+          { userName: { $regex: query, $options: "i" } },
+          { email: { $regex: query, $options: "i" } },
+        ],
+      })
+      .select("-password");
 
-  res.status(200).json(users)
-} catch (error) {
-  res.status(400).json({message: 'Server error', error: error.message})
-}
+    res.status(200).json(users);
+  } catch (error) {
+    res.status(400).json({ message: "Server error", error: error.message });
+  }
+};
+
+module.exports.updateFriend = async (req, res, next) => {
+  try {
+    const { userId, friendId } = req.body;
+    // console.log('the user and friend id are : ',userId,friendId)
+    const user = await userModel.findByIdAndUpdate(
+      userId,
+      { $addToSet: { friends: friendId } },
+      { new: true, runValidators: true }
+    );
+    // console.log("After Update: ", user);
+
+    if (!user) {
+      return res.status(401).json({ message: "User not found" });
+    }
+
+    await userModel.findByIdAndUpdate(
+      friendId,
+      { $addToSet: { friends: userId } },
+      { new: true, runValidators: true }
+    );
+
+    res.status(201).json(user);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+module.exports.findProfile = async (req, res, next) => {
+  try {
+    const { id } = req.query;
+    const user = await userModel.findById(id);
+    if(!user){
+      return res.status(400).json({message: 'User not found'})
+    }
+    // console.log(id)
+    res.status(200).json(user);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
 };

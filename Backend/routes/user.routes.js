@@ -22,4 +22,8 @@ router.get('/logout',authMiddleware.authUser,userController.logoutUser)
 
 router.get('/search',userController.searchUser)
 
+router.post('/update_friend',userController.updateFriend)
+
+router.get('/find_User',userController.findProfile)
+
 module.exports = router

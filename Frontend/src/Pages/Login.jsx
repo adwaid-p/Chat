@@ -29,6 +29,7 @@ const Login = () => {
             console.log('the data is:', data)
             setUser(data.user)
             localStorage.setItem('token', data.token)
+            localStorage.setItem('user_id', JSON.stringify(data.user._id))
             navigate('/messages')
         }
         setEmail('')

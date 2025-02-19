@@ -10,7 +10,8 @@ const server = http.createServer(app)
 const PORT = process.env.PORT || 3001
 const connectToDb = require('./db/db')
 const userRoutes = require('./routes/user.routes')
-const cookieParser = require('cookie-parser')
+const cookieParser = require('cookie-parser');
+const userModel = require('./models/user.model');
 
 connectToDb()
 
@@ -39,9 +40,18 @@ server.listen(PORT, () => {
 
 
 io.on('connection',(socket)=>{
-    console.log('A user is connected: ',socket.id);
-    socket.on('sendMessage',(message)=>{
+    // console.log('A user is connected: ',socket.id);
+    socket.on('join',async (userId)=>{
+        // console.log('the userId is ',userId)
+        const user = await userModel.findByIdAndUpdate(userId,{socketId: socket.id})
+        console.log(user.socketId)
+    })
+    socket.on('privateMessage',async({senderId,receiverId,message})=>{
         console.log(message)
+        console.log('the userId is ',senderId)
+        const receiver = await userModel.findById(receiverId)
+        // console.log('The receiver is socket id is ',receiver.socketId)
         io.emit('receiveMessage',message)
+        // io.to(receiver.socketId).emit('receiveMessage',{senderId,message})
     })
 })

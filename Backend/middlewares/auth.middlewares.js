@@ -5,7 +5,7 @@ const BlackListTokenModel = require('../models/BlackListToken.model')
 
 module.exports.authUser = async (req, res, next) => {
     const token = req.cookies.token || req.headers.authorization?.split(' ')[1]
-    console.log('token:',token)
+    // console.log('token:',token)
     if(!token){
         return res.status(401).json({ message: "Unauthorized" });
     }
@@ -17,15 +17,15 @@ module.exports.authUser = async (req, res, next) => {
     }
     
     try{
-        console.log("JWT_SECRET from env:", process.env.JWT_SECRET);
+        // console.log("JWT_SECRET from env:", process.env.JWT_SECRET);
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET)
         
-        console.log('decoded:',decoded)
+        // console.log('decoded:',decoded)
 
         const user = await userModel.findById(decoded.id)
 
-        console.log('the user:',user)
+        // console.log('the user:',user)
 
         req.user = user
 

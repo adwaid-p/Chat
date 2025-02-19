@@ -1,10 +1,13 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { UserDataContext } from '../context/UserContext';
 import axios from 'axios';
+import { MessageDataContext } from '../context/MessageContext'
 
 const MessageInput = ({ socket }) => {
 
   const [user, setUser] = useState('')
+    const { receiver, setReceiver } = useContext(MessageDataContext);
+  console.log('the receiver is ', receiver._id)
 
   const currentUser = async()=>{
     const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/user/profile`,{
@@ -25,7 +28,7 @@ const MessageInput = ({ socket }) => {
     if (e.key === 'Enter') {
       e.preventDefault();
       if (message.trim() !== '') {
-        socket.emit('sendMessage', message)
+        socket.emit('privateMessage', {senderId: user._id, receiverId: receiver._id, message});
         setMessage('');
       }
     }
