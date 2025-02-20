@@ -26,4 +26,6 @@ router.post('/update_friend',userController.updateFriend)
 
 router.get('/find_User',userController.findProfile)
 
+router.get('/fetch_message',userController.fetchMessage)
+
 module.exports = router

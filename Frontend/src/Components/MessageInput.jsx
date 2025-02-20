@@ -1,13 +1,16 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useState } from 'react'
 import { UserDataContext } from '../context/UserContext';
 import axios from 'axios';
 import { MessageDataContext } from '../context/MessageContext'
+import { IncoMessageContextValue } from '../context/IncoMessageContext';
 
-const MessageInput = ({ socket }) => {
+const MessageInput = ({ socket, setMessages, messages }) => {
 
   const [user, setUser] = useState('')
     const { receiver, setReceiver } = useContext(MessageDataContext);
-  console.log('the receiver is ', receiver._id)
+    const {incoMessage,setIncoMessage} = useContext(IncoMessageContextValue)
+    console.log(incoMessage)
+  // console.log('the receiver is ', receiver._id)
 
   const currentUser = async()=>{
     const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/user/profile`,{
@@ -28,29 +31,60 @@ const MessageInput = ({ socket }) => {
     if (e.key === 'Enter') {
       e.preventDefault();
       if (message.trim() !== '') {
-        socket.emit('privateMessage', {senderId: user._id, receiverId: receiver._id, message});
+        const newMessge= {senderId: user._id,message}
+        setMessages((prevMessages) => [...prevMessages, newMessge])
+        // socket.emit('privateMessage', {senderId: user._id, receiverId: receiver._id, message});
+        incoMessage?socket.emit('IncoMessage', {senderId: user._id, receiverId: receiver._id, message}) : socket.emit('privateMessage', {senderId: user._id, receiverId: receiver._id, message})
         setMessage('');
+        // console.log('the message array :',messages)
       }
     }
   };
 
+  useEffect(()=>{
+    currentUser()
+  },[])
+
   useEffect(() => {
     window.addEventListener('keydown', sendMessage)
-    currentUser()
+    // currentUser()
     return () => window.removeEventListener('keydown', sendMessage)
   }, [message])
 
   // console.log(user)
 
+
+  // const sendMessage = useCallback((e)=>{
+  //   if (e.key === 'Enter') {
+  //     e.preventDefault();
+  //     if (message.trim() !== '' && user._id && receiver._id) {
+  //       socket.emit('privateMessage', {senderId: user._id, receiverId: receiver._id, message});
+  //       setMessage('');
+  //     }
+  //   }
+  // },[message,user,receiver,socket])
+
+  // useEffect(()=>{
+  //   currentUser()
+  // },[])
+
+  // useEffect(()=>{
+  //   window.addEventListener('keydown', sendMessage)
+  //   return ()=> window.removeEventListener('keydown', sendMessage)
+  // },[sendMessage])
+
   return (
     <div className='bg-[#172032] w-full absolute bottom-0 flex items-center'>
       <input value={message} onChange={(e) => setMessage(e.target.value)} className='w-full bg-transparent px-5 py-4 focus:outline-none border-none' type="text" placeholder='Enter your message' autoFocus />
       <div className='aspect-square w-[40px] h-[40px] hover:bg-blue-600 transition-all rounded-full flex items-center justify-center'>
-        {/* <i className="text-2xl ri-ai-generate-2"></i> */}
+        <i className="text-xl ri-ai-generate-2"></i>
         {/* <button onClick={(e)=> sendMessage(e)}>Send</button> */}
       </div>
       <div className='aspect-square w-[40px] h-[40px] hover:bg-blue-600 transition-all rounded-full flex items-center justify-center mr-3'>
-        <i className="text-2xl ri-mic-line"></i>
+      <i className="text-xl ri-translate-2"></i>
+      </div>
+      <div className='aspect-square w-[40px] h-[40px] hover:bg-blue-600 transition-all rounded-full flex items-center justify-center mr-3'>
+        <i className="text-xl ri-mic-line"></i>
       </div>
     </div>
   )

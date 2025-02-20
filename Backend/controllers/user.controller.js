@@ -3,6 +3,7 @@ const { validationResult } = require("express-validator");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const userModel = require("../models/user.model");
+const MessageModel = require("../models/message.model")
 const blackListTokenModel = require("../models/BlackListToken.model");
 
 module.exports.registerUser = async (req, res, next) => {
@@ -149,3 +150,14 @@ module.exports.findProfile = async (req, res, next) => {
     res.status(400).json({ message: error.message });
   }
 };
+
+module.exports.fetchMessage = async(req,res,next)=>{
+  try {
+    const {senderId,receiverId} = req.query
+    const messages = await MessageModel.find({$or:[{senderId:senderId,receiverId:receiverId},{senderId:receiverId,receiverId:senderId}]}).sort({createdAt:1})
+    // const messages = await MessageModel.find()
+    res.status(200).json(messages)
+  } catch (error) {
+    res.status(400).json({message: error.message})
+  }
+}

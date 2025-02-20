@@ -90,7 +90,7 @@ useEffect(() => {
               ) : (
                 suggestions.map((user) => (
                   // console.log(user)
-                  <div key={user._id} className='flex items-center gap-2' onClick={() => {
+                  <div key={user._id} className='flex items-center gap-2 cursor-pointer' onClick={() => {
                     // setFriends(prevFriends => [...prevFriends, user]);
                     addFriend(user._id)
                     // console.log('the friends are',friends)

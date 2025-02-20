@@ -12,6 +12,7 @@ const connectToDb = require('./db/db')
 const userRoutes = require('./routes/user.routes')
 const cookieParser = require('cookie-parser');
 const userModel = require('./models/user.model');
+const MessageModel = require('./models/message.model');
 
 connectToDb()
 
@@ -41,17 +42,34 @@ server.listen(PORT, () => {
 
 io.on('connection',(socket)=>{
     // console.log('A user is connected: ',socket.id);
-    socket.on('join',async (userId)=>{
-        // console.log('the userId is ',userId)
-        const user = await userModel.findByIdAndUpdate(userId,{socketId: socket.id})
-        console.log(user.socketId)
-    })
+    socket.on('join', async (userId) => {
+        const user = await userModel.findByIdAndUpdate(
+            userId,
+            { socketId: socket.id },
+            { new: true } // Return the updated document
+        );
+        console.log('Updated socketId:', user.socketId);
+    });
     socket.on('privateMessage',async({senderId,receiverId,message})=>{
-        console.log(message)
-        console.log('the userId is ',senderId)
+        // console.log(message)
+        // console.log('the userId is ',senderId)
+        // console.log('the receiverId is ',receiverId)
         const receiver = await userModel.findById(receiverId)
+        if(!receiver || !receiver.socketId){
+            console.log('Receiver not found or offline',receiverId)
+        }
         // console.log('The receiver is socket id is ',receiver.socketId)
-        io.emit('receiveMessage',message)
-        // io.to(receiver.socketId).emit('receiveMessage',{senderId,message})
+        // io.emit('receiveMessage',message)
+        io.to(receiver.socketId).emit('receiveMessage',{senderId,message})
+        const newMessage = await MessageModel.create({senderId,receiverId,message})
+        console.log(newMessage)
+        // io.to(receiver.socketId).emit('receiveMessage',message)
+    })
+    socket.on('IncoMessage',async({senderId,receiverId,message})=>{
+        const receiver = await userModel.findById(receiverId)
+        if(!receiver || !receiver.socketId){
+            console.log('Receiver not found or offline',receiverId)
+        }
+        io.to(receiver.socketId).emit('receiveMessage',{senderId,message})
     })
 })
