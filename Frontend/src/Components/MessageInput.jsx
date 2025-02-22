@@ -31,10 +31,10 @@ const MessageInput = ({ socket, setMessages, messages }) => {
     if (e.key === 'Enter') {
       e.preventDefault();
       if (message.trim() !== '') {
-        const newMessge= {senderId: user._id,message}
+        const newMessge= {senderId: user._id,message, createdAt: Date.now()}
         setMessages((prevMessages) => [...prevMessages, newMessge])
         // socket.emit('privateMessage', {senderId: user._id, receiverId: receiver._id, message});
-        incoMessage?socket.emit('IncoMessage', {senderId: user._id, receiverId: receiver._id, message}) : socket.emit('privateMessage', {senderId: user._id, receiverId: receiver._id, message})
+        incoMessage?socket.emit('IncoMessage', {senderId: user._id, receiverId: receiver._id, message, createdAt: Date.now()}) : socket.emit('privateMessage', {senderId: user._id, receiverId: receiver._id, message, createdAt: Date.now()})
         setMessage('');
         // console.log('the message array :',messages)
       }

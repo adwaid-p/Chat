@@ -26,6 +26,8 @@ const fetchMessages = async () => {
   setMessages(response.data)
 }
 
+console.log('the receiver is for offline test',receiver)
+
   useEffect(()=>{
     fetchMessages()
   },[receiver])
@@ -40,6 +42,7 @@ useEffect(() => {
   socket.connect()
   socket.emit('join', userId)
   socket.on('receiveMessage',(data)=>{
+    console.log('entered the receive message')
     console.log('the message is from the frontend',data)
     setMessages((prevMessages) => [...prevMessages, data])
   })

@@ -41,7 +41,8 @@ server.listen(PORT, () => {
 
 
 io.on('connection',(socket)=>{
-    // console.log('A user is connected: ',socket.id);
+    try {
+            // console.log('A user is connected: ',socket.id);
     socket.on('join', async (userId) => {
         const user = await userModel.findByIdAndUpdate(
             userId,
@@ -50,26 +51,30 @@ io.on('connection',(socket)=>{
         );
         console.log('Updated socketId:', user.socketId);
     });
-    socket.on('privateMessage',async({senderId,receiverId,message})=>{
+    socket.on('privateMessage',async({senderId,receiverId,message,createdAt})=>{
         // console.log(message)
         // console.log('the userId is ',senderId)
         // console.log('the receiverId is ',receiverId)
         const receiver = await userModel.findById(receiverId)
+        const newMessage = await MessageModel.create({senderId,receiverId,message})
         if(!receiver || !receiver.socketId){
             console.log('Receiver not found or offline',receiverId)
         }
         // console.log('The receiver is socket id is ',receiver.socketId)
         // io.emit('receiveMessage',message)
-        io.to(receiver.socketId).emit('receiveMessage',{senderId,message})
-        const newMessage = await MessageModel.create({senderId,receiverId,message})
+        io.to(receiver.socketId).emit('receiveMessage',{senderId,message,createdAt})
+        // const newMessage = await MessageModel.create({senderId,receiverId,message})
         console.log(newMessage)
         // io.to(receiver.socketId).emit('receiveMessage',message)
     })
-    socket.on('IncoMessage',async({senderId,receiverId,message})=>{
+    socket.on('IncoMessage',async({senderId,receiverId,message,createdAt})=>{
         const receiver = await userModel.findById(receiverId)
         if(!receiver || !receiver.socketId){
             console.log('Receiver not found or offline',receiverId)
         }
-        io.to(receiver.socketId).emit('receiveMessage',{senderId,message})
+        io.to(receiver.socketId).emit('receiveMessage',{senderId,message,createdAt})
     })
+    } catch (error) {
+        console.log('The error is ',error.message)
+    }
 })
