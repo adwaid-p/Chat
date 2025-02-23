@@ -49,7 +49,7 @@ io.on('connection',(socket)=>{
             { socketId: socket.id },
             { new: true } // Return the updated document
         );
-        console.log('Updated socketId:', user.socketId);
+        // console.log('Updated socketId:', user.socketId);
     });
     socket.on('privateMessage',async({senderId,receiverId,message,createdAt})=>{
         // console.log(message)
