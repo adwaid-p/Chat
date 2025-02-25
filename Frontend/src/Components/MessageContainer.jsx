@@ -5,12 +5,16 @@ import Message from './Message'
 import { io } from 'socket.io-client'
 import axios from 'axios'
 import { MessageDataContext } from '../context/MessageContext'
+import { CallDataContext } from '../context/CallContext'
+import VideoCall from './VideoCall'
 
 const socket = io('http://localhost:3000')
 
 const MessageContainer = () => {
 
-  const {receiver, setReceiver} = useContext(MessageDataContext)
+  const { receiver, setReceiver } = useContext(MessageDataContext)
+  const { callState, setCallState } = useContext(CallDataContext)
+  console.log('the call state is', callState)
   // console.log('the receicer is ',receiver)
 
   const [messages, setMessages] = useState([])
@@ -18,19 +22,19 @@ const MessageContainer = () => {
 
   const userId = JSON.parse(localStorage.getItem('user_id'))
 
-const fetchMessages = async () => {
-  const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/user/fetch_message`,{
-    params:{senderId:userId,receiverId:receiver._id}
-})
-  console.log('the user messages are',response.data)
-  setMessages(response.data)
-}
+  const fetchMessages = async () => {
+    const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/user/fetch_message`, {
+      params: { senderId: userId, receiverId: receiver._id }
+    })
+    console.log('the user messages are', response.data)
+    setMessages(response.data)
+  }
 
-console.log('the receiver is for offline test',receiver)
+  console.log('the receiver is for offline test', receiver)
 
-  useEffect(()=>{
+  useEffect(() => {
     fetchMessages()
-  },[receiver])
+  }, [receiver])
 
   // socket.on('connect', () => {
   //   console.log('connected',socket.id);
@@ -38,45 +42,51 @@ console.log('the receiver is for offline test',receiver)
   //   // axios.post(`${import.meta.env.VITE_BASE_URL}/user/online`,{socketId: socket.id}).then((res)=>console.log(res)).catch(err=>console.log(err))
   // })
 
-useEffect(() => {
-  socket.connect()
-  socket.emit('join', userId)
-  socket.on('receiveMessage',(data)=>{
-    console.log('entered the receive message')
-    console.log('the message is from the frontend',data)
-    setMessages((prevMessages) => [...prevMessages, data])
-  })
-  return () => {
-    socket.off("receiveMessage");
-    socket.disconnect();
-  };
-}, [userId])
-
-useEffect(()=>{
-  if(messageContainerRef.current){
-    messageContainerRef.current.scrollTo({
-      top: messageContainerRef.current.scrollHeight,
-      behavior: 'smooth'
+  useEffect(() => {
+    socket.connect()
+    socket.emit('join', userId)
+    socket.on('receiveMessage', (data) => {
+      console.log('entered the receive message')
+      console.log('the message is from the frontend', data)
+      setMessages((prevMessages) => [...prevMessages, data])
     })
-  }
-})
+    return () => {
+      socket.off("receiveMessage");
+      socket.disconnect();
+    };
+  }, [userId])
+
+  useEffect(() => {
+    if (messageContainerRef.current) {
+      messageContainerRef.current.scrollTo({
+        top: messageContainerRef.current.scrollHeight,
+        behavior: 'smooth'
+      })
+    }
+  })
 
 
   return (
     <div className='h-screen w-full relative'>
       <MessageNav />
-      <div ref={messageContainerRef} className='h-[80vh] px-3 py-5 overflow-y-auto flex flex-col gap-5'>
-        {
-          messages.map((msg, index) => (
-            // console.log(msg)
-            <div key={index} className={`flex w-full ${msg.senderId === userId && 'justify-end'}`}>
-              <Message message={msg} currentUserId={userId} />
-            </div>
-          ))
+      <div ref={messageContainerRef} className='h-[82.5vh]'>
+        {callState ?
+          <VideoCall />
+          : <div className='h-full px-3 py-5 overflow-y-auto flex flex-col gap-5'>
+            {
+              messages.map((msg, index) => (
+                // console.log(msg)
+                <div key={index} className={`flex w-full ${msg.senderId === userId && 'justify-end'}`}>
+                  <Message message={msg} currentUserId={userId} />
+                </div>
+              ))
+            }
+          </div>
         }
 
+
       </div>
-      <MessageInput socket={socket} setMessages={setMessages} message={messages}/>
+      <MessageInput socket={socket} setMessages={setMessages} message={messages} />
     </div>
   )
 }

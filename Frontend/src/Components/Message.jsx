@@ -21,7 +21,7 @@ const Message = ({ message, currentUserId }) => {
       <div className='pr-10 tetx-sm'>
         {message.message}
       </div>
-      <div className={`text-[10px] ${isSentByCurrentUser ? 'text-white text-right' : 'text-gray-400'} pl-10 -mt-1`}>{istTime}</div>
+      <div className={`text-[11px] ${isSentByCurrentUser ? 'text-white' : 'text-gray-400'} text-right pl-10 -mt-1`}>{istTime}</div>
     </div>
   )
 }

@@ -6,15 +6,18 @@ import { BrowserRouter } from "react-router-dom";
 import UserContext from './context/UserContext.jsx';
 import MessageContext from './context/MessageContext.jsx';
 import IncoMessageContext from './context/IncoMessageContext.jsx';
+import CallContext from './context/CallContext.jsx';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <UserContext>
       <MessageContext>
         <IncoMessageContext>
-          <BrowserRouter>
-            <App />
-          </BrowserRouter>
+          <CallContext>
+            <BrowserRouter>
+              <App />
+            </BrowserRouter>
+          </CallContext>
         </IncoMessageContext>
       </MessageContext>
     </UserContext>
