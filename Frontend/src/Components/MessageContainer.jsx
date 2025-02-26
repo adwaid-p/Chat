@@ -46,8 +46,8 @@ const MessageContainer = () => {
     socket.connect()
     socket.emit('join', userId)
     socket.on('receiveMessage', (data) => {
-      console.log('entered the receive message')
-      console.log('the message is from the frontend', data)
+      // console.log('entered the receive message')
+      // console.log('the message is from the frontend', data)
       setMessages((prevMessages) => [...prevMessages, data])
     })
     return () => {
@@ -69,12 +69,12 @@ const MessageContainer = () => {
   return (
     <div className='h-screen w-full relative'>
       <MessageNav />
-      <div ref={messageContainerRef} className='h-[82.5vh]'>
+      <div className='h-[82.5vh]'>
         {callState ?
           <VideoCall />
-          : <div className='h-full px-3 py-5 overflow-y-auto flex flex-col gap-5'>
+          : <div ref={messageContainerRef}  className='h-full px-3 py-5 overflow-y-auto flex flex-col gap-5'>
             {
-              messages.map((msg, index) => (
+              receiver && messages.map((msg, index) => (
                 // console.log(msg)
                 <div key={index} className={`flex w-full ${msg.senderId === userId && 'justify-end'}`}>
                   <Message message={msg} currentUserId={userId} />
