@@ -6,8 +6,11 @@ import { MessageDataContext } from '../context/MessageContext';
 const VideoCall = () => {
     const { callState, setCallState } = useContext(CallDataContext);
     const [stream, setStream] = useState(null);
+    const [peerId, setPeerId] = useState(null);
+
     const receiveVideoRef = useRef(null);
     const localVideoRef = useRef(null);
+    const peerRef = useRef(null)
 
     const userId = JSON.parse(localStorage.getItem('user_id'))
     // console.log('current user id for video call',userId)
@@ -15,54 +18,73 @@ const VideoCall = () => {
     const { receiver } = useContext(MessageDataContext)
     // console.log('the receiver for peer is',receiver)
 
-    const peer = new Peer(userId)
+    useEffect(() => {
+        const peer = new Peer(userId)
+        peerRef.current = peer
+        peer.on('open', id => {
+            console.log('Peer ID:', id);
+            setPeerId(id)
+        })
+
+        peer.on('call', call => {
+            if (stream) {
+                call.answer(stream)
+                call.on('stream', remoteVideo => {
+                    if (receiveVideoRef.current) {
+                        receiveVideoRef.current.srcObject = remoteVideo
+                    }
+                })
+            }
+        })
+        return () => {
+            peer.destroy()
+        }
+    }, [stream])
 
     useEffect(() => {
         const startVideo = async () => {
             try {
-                const localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-                setStream(localStream);
+                const localVideo = await navigator.mediaDevices.getUserMedia({ audio: true, video: true })
+                setStream(localVideo)
                 if (localVideoRef.current) {
-                    // receiveVideoRef.current.srcObject = localStream;
-                    localVideoRef.current.srcObject = localStream;
+                    localVideoRef.current.srcObject = localVideo
                 }
             } catch (error) {
-                console.log('Error while accessing the camera', error);
+                console.log('Error accessing camera: ', error)
             }
-        };
-        startVideo();
-    }, []);
+        }
+        startVideo()
+        return () => {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop())
+            }
+        }
+    }, [])
 
-    useEffect(() => {
-        // navigator.mediaDevices.getUserMedia({video:true, audio: true}).then(stream)
-        peer.on('open', id => {
-            console.log('the peer id is', id)
+    const startCall = () => {
+        if (!stream || !receiver?._id || !peerRef.current) {
+            console.log('Cannot start call: Missing stream, receiver, or peer');
+            return
+        }
+
+        const call = peerRef.current.call(receiver._id, stream)
+        call.on('stream', remoteVideo => {
+            if (receiveVideoRef.current) {
+                receiveVideoRef.current.srcObject = remoteVideo
+            }
         })
-        const call = peer.call(receiver._id, stream)
+    }
 
-        call.on('stream', receivedVideo =>{
-            receiveVideoRef.current.srcObject = receivedVideo
-        })
-
-        peer.on('call', call=>{
-            call.answer(stream)
-            call.on('stream', receivedVideo=>{
-                receiveVideoRef.current.srcObject = receivedVideo
-            })
-        })
-    }, [stream])
-
-    // Function to stop the video stream
     const stopVideo = () => {
         if (stream) {
-            stream.getTracks().forEach(track => track.stop()); // Stop all media tracks
-            setStream(null); // Clear the state
+            stream.getTracks().forEach(track => track.stop())
+            setStream(null)
         }
         if (localVideoRef.current) {
-            localVideoRef.current.srcObject = null; // Remove video source
+            localVideoRef.current.srcObject = null
         }
-        setCallState(false);
-    };
+        setCallState(false)
+    }
 
     return (
         <div className='h-[83vh] w-full p-5 relative'>
@@ -80,7 +102,7 @@ const VideoCall = () => {
                 className='aspect-[9/16] w-[100px] border-2 border-gray-600 rounded-xl bg-[#172032] object-cover scale-x-[-1] absolute bottom-10 right-10'
             ></video>
             <div className='flex justify-center items-center gap-5 mt-5 text-lg absolute bottom-10 w-full'>
-                <button className='bg-green-600 px-12 py-2 rounded'>Call</button>
+                <button onClick={startCall} className='bg-green-600 px-12 py-2 rounded'>Call</button>
                 <button onClick={stopVideo} className='bg-red-600 px-12 py-2 rounded'>End</button>
             </div>
         </div>
