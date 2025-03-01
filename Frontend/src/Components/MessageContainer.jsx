@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect, useRef, useState } from 'react'
 import MessageNav from './MessageNav'
 import MessageInput from './MessageInput'
 import Message from './Message'
@@ -7,18 +7,20 @@ import axios from 'axios'
 import { MessageDataContext } from '../context/MessageContext'
 import { CallDataContext } from '../context/CallContext'
 import VideoCall from './VideoCall'
+import { useSocket } from '../context/SocketContext';
 
-const socket = io('http://localhost:3000')
+// const socket = io('http://localhost:3000')
 
 const MessageContainer = () => {
 
   const { receiver, setReceiver } = useContext(MessageDataContext)
   const { callState, setCallState } = useContext(CallDataContext)
-  console.log('the call state is', callState)
+  const socket = useSocket();
+  // console.log('the call state is', callState)
   // console.log('the receicer is ',receiver)
 
   const [messages, setMessages] = useState([])
-  const messageContainerRef = React.useRef(null);
+  const messageContainerRef = useRef(null);
 
   const userId = JSON.parse(localStorage.getItem('user_id'))
 
@@ -33,8 +35,10 @@ const MessageContainer = () => {
   console.log('the receiver is for offline test', receiver)
 
   useEffect(() => {
-    fetchMessages()
-  }, [receiver])
+    if (receiver?._id) {
+      fetchMessages();
+    }
+  }, [receiver?._id]);
 
   // socket.on('connect', () => {
   //   console.log('connected',socket.id);
@@ -43,27 +47,36 @@ const MessageContainer = () => {
   // })
 
   useEffect(() => {
-    socket.connect()
-    socket.emit('join', userId)
+    // socket.connect()
+    // socket.emit('join', userId)
+    if(!socket) return;
     socket.on('receiveMessage', (data) => {
       // console.log('entered the receive message')
       // console.log('the message is from the frontend', data)
       setMessages((prevMessages) => [...prevMessages, data])
     })
+    socket.on('Status', (data) => {console.log(data)})
+      
     return () => {
       socket.off("receiveMessage");
-      socket.disconnect();
+      // socket.disconnect();
     };
-  }, [userId])
+  }, [socket])
+
+  // useEffect(() => {
+  //   if (messageContainerRef.current) {
+  //     messageContainerRef.current.scrollTo({
+  //       top: messageContainerRef.current.scrollHeight,
+  //       behavior: 'smooth'
+  //     })
+  //   }
+  // })
 
   useEffect(() => {
     if (messageContainerRef.current) {
-      messageContainerRef.current.scrollTo({
-        top: messageContainerRef.current.scrollHeight,
-        behavior: 'smooth'
-      })
+      messageContainerRef.current.scrollTop = messageContainerRef.current.scrollHeight;
     }
-  })
+  }, [messages]);
 
 
   return (
