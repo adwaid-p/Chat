@@ -49,7 +49,7 @@ io.on('connection',(socket)=>{
     socket.on('join', async (userId) => {
         const user = await userModel.findByIdAndUpdate(
             userId,
-            { socketId: socket.id },
+            { socketId: socket.id, isOnline: true ,lastSeen: Date.now()},
             { new: true } // Return the updated document
         );
         // console.log('Updated socketId:', user.socketId);
