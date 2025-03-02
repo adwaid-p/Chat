@@ -10,16 +10,25 @@ const MessageNav = () => {
   const { receiver } = useContext(MessageDataContext)
   const { incoMessage, setIncoMessage } = useContext(IncoMessageContextValue)
   const { callState, setCallState } = useContext(CallDataContext)
-  const [isOnline, setIsOnline] = useState(receiver.isOnline)
-  const [lastSeen, setLastSeen] = useState(receiver.lastSeen)
+  const [isOnline, setIsOnline] = useState(false)
+  const [lastSeen, setLastSeen] = useState(null)
   const socket = useSocket();
   // console.log('value of inco',incoMessage)
   // console.log(receiver)
 
   useEffect(() => {
-    // const socket = io('http://localhost:3000')
-    if (!socket || !receiver?._id) return;
+    if (receiver) {
+      setIsOnline(receiver.isOnline || false);
+      setLastSeen(receiver.lastSeen || null);
+    }
+  }, [receiver]);
 
+
+  useEffect(() => {
+    // const socket = io('http://localhost:3000')
+    if (!socket || !receiver?._id) return undefined;
+
+    
     socket.on('userStatus', (data) => {
       if (data.userId === receiver._id) {
         setIsOnline(data.isOnline)
@@ -31,20 +40,24 @@ const MessageNav = () => {
 
     socket.on('Status', (data) => {console.log(data)})
 
-    socket.on('initialStatus', (users) => {
-      const currentUser = users.find(user => user.userId === receiver._id);
-      if (currentUser) {
-        setIsOnline(currentUser.isOnline);
-      }
-    });
+    // console.log('The recever data from context :',receiver.isOnline)
+
+    // socket.on('initialStatus', (users) => {
+    //   const currentUser = users.find(user => user.userId === receiver._id);
+    //   if (currentUser) {
+    //     setIsOnline(currentUser.isOnline);
+    //   }
+    // });
 
     return () => {
       socket.off('userStatus')
-      socket.off('initialStatus')
-      socket.disconnect()
+      // socket.off('initialStatus')
+      // socket.disconnect()
     }
-  }, [socket, receiver._id])
+  }, [socket, receiver])
 
+
+  
 
 
   const formatLastSeen = (date) => {

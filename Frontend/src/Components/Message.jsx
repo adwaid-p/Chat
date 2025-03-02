@@ -13,7 +13,7 @@ const Message = ({ message, currentUserId }) => {
     minute: '2-digit',
     // second: '2-digit'
   });
-  console.log(istTime)
+  // console.log(istTime)
 
   return (
     <div className={`inline-block w-fit max-w-[450px] px-5 py-[4px] break-words ${isSentByCurrentUser ? 'bg-blue-600 rounded-l-xl rounded-br-xl' : 'bg-[#222e43] rounded-r-xl rounded-bl-xl'}`}>

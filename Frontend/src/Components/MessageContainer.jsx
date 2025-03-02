@@ -28,11 +28,11 @@ const MessageContainer = () => {
     const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/user/fetch_message`, {
       params: { senderId: userId, receiverId: receiver._id }
     })
-    console.log('the user messages are', response.data)
+    // console.log('the user messages are', response.data)
     setMessages(response.data)
   }
 
-  console.log('the receiver is for offline test', receiver)
+  // console.log('the receiver is for offline test', receiver)
 
   useEffect(() => {
     if (receiver?._id) {
@@ -55,7 +55,7 @@ const MessageContainer = () => {
       // console.log('the message is from the frontend', data)
       setMessages((prevMessages) => [...prevMessages, data])
     })
-    socket.on('Status', (data) => {console.log(data)})
+    // socket.on('Status', (data) => {console.log(data)})
       
     return () => {
       socket.off("receiveMessage");

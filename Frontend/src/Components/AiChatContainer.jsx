@@ -1,5 +1,6 @@
 import axios from 'axios'
 import React, { useEffect, useRef, useState } from 'react'
+import Loader from './Loader'
 // import ReactMarkdown from 'react-markdown';
 
 const AiChatContainer = () => {
@@ -65,7 +66,7 @@ const AiChatContainer = () => {
                             </div>
                         ))
                     }
-                    {loading && <div className='text-gray-400'>Loading...</div>}
+                    {loading && <div className='text-gray-400 px-4 py-2 bg-[#263452] rounded-l-xl rounded-br-xl'><Loader/> </div>}
                 </div>
                 <div className='absolute bottom-0 left-0 w-full flex gap-2'>
                     <input value={message} onChange={(e) => setMessage(e.target.value)} className='w-full bg-[#263452] px-5 py-4 focus:outline-none border-none' type="text" placeholder='Ask anything Ai' autoFocus />

@@ -7,7 +7,7 @@ const http = require("http");
 const { Server } = require("socket.io");
 const server = http.createServer(app);
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3000;
 const connectToDb = require("./db/db");
 const userRoutes = require("./routes/user.routes");
 const aiRoutes = require("./routes/ai.routes");
@@ -51,48 +51,51 @@ io.on("connection", (socket) => {
         { socketId: socket.id, isOnline: true, lastSeen: Date.now() },
         { new: true } // Return the updated document
       );
-      console.log('user data at time of online',user)
-      if(!user) return
-      io.emit('Status', `${user.userName} is online`)
-      io.emit("userStatus", { userId: user._id, isOnline: true, lastSeen: user.lastSeen });
+      console.log("user data at time of online", user);
+      if (user) {
+        io.emit("Status", `${user.userName} is online`);
+        io.emit("userStatus", {
+          userId: user._id,
+          isOnline: true,
+          lastSeen: user.lastSeen,
+        });
+      }
       // console.log('Updated socketId:', user.socketId);
 
-      const onlineUsers = await userModel.find({ isOnline: true }, '_id');
-      socket.emit('initialStatus', onlineUsers.map(user => ({
-        userId: user._id,
-        isOnline: true
-      })));
-
+      // const onlineUsers = await userModel.find({ isOnline: true }, '_id');
+      // socket.emit('initialStatus', onlineUsers.map(user => ({
+      //   userId: user._id,
+      //   isOnline: true
+      // })));
     });
 
     socket.on("disconnect", async () => {
-        try {
-          const user = await userModel.findOneAndUpdate(
-            { socketId: socket.id },
-            {
-              isOnline: false,
-              lastSeen: Date.now(),
-              socketId: null,
-            },
-            { new: true }
-          );
-      
-          console.log("User disconnected:");
-        //   console.log('user data at the time of offline', user);
-          
-          if (user) {
-            io.emit('userStatus', {
-              userId: user._id,
-              isOnline: false,
-              lastSeen: user.lastSeen
-            });
-          }
-          io.emit('Status', `${user.userName} is offline`)
-        } catch (error) {
-          console.log("Error in disconnect handler:", error.message);
-        }
-      });
+      try {
+        const user = await userModel.findOneAndUpdate(
+          { socketId: socket.id },
+          {
+            isOnline: false,
+            lastSeen: Date.now(),
+            socketId: null,
+          },
+          { new: true }
+        );
 
+        console.log("User disconnected:");
+        //   console.log('user data at the time of offline', user);
+
+        if (user) {
+          io.emit("userStatus", {
+            userId: user._id,
+            isOnline: false,
+            lastSeen: user.lastSeen,
+          });
+        }
+        io.emit("Status", `${user.userName} is offline`);
+      } catch (error) {
+        console.log("Error in disconnect handler:", error.message);
+      }
+    });
 
     socket.on(
       "privateMessage",

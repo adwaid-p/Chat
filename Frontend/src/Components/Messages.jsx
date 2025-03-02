@@ -80,6 +80,7 @@ useEffect(() => {
   return (
 
     <div className='h-screen w-full p-5 flex flex-col gap-5'>
+      {/* <h1 className='text-3xl font-semibold'>Chats</h1> */}
       <div>
         <input value={search} onChange={(e) => setSearch(e.target.value)} className='w-full bg-[#141b28] p-2 px-5 rounded-3xl focus:outline-gray-500 border-none relative' type="text" placeholder='Search' />
         {search &&

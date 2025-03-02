@@ -9,7 +9,7 @@ const MessageInput = ({ socket, setMessages, messages }) => {
   const [user, setUser] = useState('')
   const { receiver, setReceiver } = useContext(MessageDataContext);
   const { incoMessage, setIncoMessage } = useContext(IncoMessageContextValue)
-  console.log(incoMessage)
+  // console.log(incoMessage)
   // console.log('the receiver is ', receiver._id)
 
   const currentUser = async () => {
