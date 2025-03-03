@@ -3,6 +3,7 @@ const router = express.Router()
 const userController = require('../controllers/user.controller')
 const {body} = require('express-validator')
 const authMiddleware = require('../middlewares/auth.middlewares')
+const upload = require('../middlewares/multer.middlewares')
 
 router.post('/register', [
         body('email').isEmail().withMessage('Invalid Email'),
@@ -27,5 +28,7 @@ router.post('/update_friend',userController.updateFriend)
 router.get('/find_User',userController.findProfile)
 
 router.get('/fetch_message',userController.fetchMessage)
+
+router.post('/profile_pic',upload.single('profilePic'),userController.updateProfilePic)
 
 module.exports = router

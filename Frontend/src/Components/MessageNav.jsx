@@ -69,16 +69,16 @@ const MessageNav = () => {
     if (diff < 60000) return 'last seen just now'
     if (diff < 3600000) return `last seen ${Math.floor(diff / 60000)} minutes ago`
     if (diff < 86400000) return `last seen ${Math.floor(diff / 3600000)} hours ago`
-    return `last seen ${lastSeenDate.toLocaleDateString()}`
+    return `last seen ${lastSeenDate.getDate().toString().padStart(2, '0')}/${(lastSeenDate.getMonth() + 1).toString().padStart(2, '0')}/${lastSeenDate.getFullYear()}`
   }
 
   return (
     <div className='py-3 px-3 border-b border-gray-800 bg-[#172032] flex justify-between items-center'>
       <div className='flex gap-2 items-center'>
         <div className='relative'>
-          <div className='aspect-square w-[40px] h-[40px] rounded-full'>
-            <img src={receiver.profilePic} alt="" />
-          </div>
+          {/* <div className='aspect-square w-[40px] h-[40px] rounded-full'> */}
+            <img className='aspect-square w-[40px] h-[40px] rounded-full object-cover' src={receiver.profilePic} alt="" />
+          {/* </div> */}
           {isOnline && (
             <div className='absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-[#172032]'></div>
           )}

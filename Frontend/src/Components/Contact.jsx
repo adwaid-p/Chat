@@ -27,7 +27,7 @@ const Contact = ({ friend }) => {
   // console.log('the receiver is ', receiver)
   return (
     <div className='w-full px-5 py-5 bg-[#222e43] rounded-md cursor-pointer flex items-center gap-x-2' onClick={() => friendData && setReceiver(friendData)}>
-      <img className='size-[35px] rounded-full' src={friendData.profilePic} alt="" />
+      <img className='size-[50px] rounded-full object-cover' src={friendData.profilePic} alt="" />
       <div>
         {friendName || 'Loading...'}
       </div>

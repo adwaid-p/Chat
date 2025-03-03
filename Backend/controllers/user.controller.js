@@ -3,8 +3,9 @@ const { validationResult } = require("express-validator");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const userModel = require("../models/user.model");
-const MessageModel = require("../models/message.model")
+const MessageModel = require("../models/message.model");
 const blackListTokenModel = require("../models/BlackListToken.model");
+const cloudinary = require('../utils/Cloudinary')
 
 module.exports.registerUser = async (req, res, next) => {
   try {
@@ -141,8 +142,8 @@ module.exports.findProfile = async (req, res, next) => {
   try {
     const { id } = req.query;
     const user = await userModel.findById(id);
-    if(!user){
-      return res.status(400).json({message: 'User not found'})
+    if (!user) {
+      return res.status(400).json({ message: "User not found" });
     }
     // console.log(id)
     res.status(200).json(user);
@@ -151,13 +152,38 @@ module.exports.findProfile = async (req, res, next) => {
   }
 };
 
-module.exports.fetchMessage = async(req,res,next)=>{
+module.exports.fetchMessage = async (req, res, next) => {
   try {
-    const {senderId,receiverId} = req.query
-    const messages = await MessageModel.find({$or:[{senderId:senderId,receiverId:receiverId},{senderId:receiverId,receiverId:senderId}]}).sort({createdAt:1})
+    const { senderId, receiverId } = req.query;
+    const messages = await MessageModel.find({
+      $or: [
+        { senderId: senderId, receiverId: receiverId },
+        { senderId: receiverId, receiverId: senderId },
+      ],
+    }).sort({ createdAt: 1 });
     // const messages = await MessageModel.find()
-    res.status(200).json(messages)
+    res.status(200).json(messages);
   } catch (error) {
-    res.status(400).json({message: error.message})
+    res.status(400).json({ message: error.message });
   }
-}
+};
+
+module.exports.updateProfilePic = async (req, res, next) => {
+  const {userId} = req.body;
+  console.log('the userId is :',userId)
+  try {
+    const response = await cloudinary.uploader.upload(req.file.path, {
+      resource_type: "auto",
+    });
+    console.log('response for image upload is :',response.secure_url)
+    const user = await userModel.findByIdAndUpdate(
+      userId,
+      { profilePic: response.secure_url },
+      { new: true }
+  );
+  console.log('the user after the image upload is :',user)
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
