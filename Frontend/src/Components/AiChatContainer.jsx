@@ -1,7 +1,7 @@
 import axios from 'axios'
 import React, { useEffect, useRef, useState } from 'react'
 import Loader from './Loader'
-// import ReactMarkdown from 'react-markdown';
+import ReactMarkdown from 'react-markdown';
 
 const AiChatContainer = () => {
 
@@ -61,7 +61,8 @@ const AiChatContainer = () => {
                             <div className={`${msg.senderId === 'AI' ? 'bg-[#263452]' : 'bg-blue-500'} px-4 py-3 inline-block w-fit rounded-l-xl rounded-br-xl`} key={index}>
                                 <div className='flex flex-col items-end gap-2'>
                                     {/* <div className='text-[12px] font-semibold'>{msg.senderId}</div> */}
-                                    <div className='text-[14px] font-semibold text-justify'>{msg.message}</div>
+                                    {/* <div className='text-[14px] font-semibold text-justify'>{msg.message}</div> */}
+                                    <ReactMarkdown>{msg.message}</ReactMarkdown>
                                 </div>
                             </div>
                         ))

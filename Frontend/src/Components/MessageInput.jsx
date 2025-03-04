@@ -31,10 +31,12 @@ const MessageInput = ({ socket, setMessages, messages }) => {
     if (e.key === 'Enter') {
       e.preventDefault();
       if (message.trim() !== '') {
-        const newMessge = { senderId: user._id, message, createdAt: Date.now() }
-        setMessages((prevMessages) => [...prevMessages, newMessge])
+        const newMessage = { senderId: user._id, receiverId: receiver._id, message, createdAt: Date.now() }
+        incoMessage?setMessages((prevMessages) => [...prevMessages, newMessage]):null
         // socket.emit('privateMessage', {senderId: user._id, receiverId: receiver._id, message});
-        incoMessage ? socket.emit('IncoMessage', { senderId: user._id, receiverId: receiver._id, message, createdAt: Date.now() }) : socket.emit('privateMessage', { senderId: user._id, receiverId: receiver._id, message, createdAt: Date.now() })
+        // incoMessage ? socket.emit('IncoMessage', { senderId: user._id, receiverId: receiver._id, message, createdAt: Date.now() }) : socket.emit('privateMessage', { senderId: user._id, receiverId: receiver._id, message, createdAt: Date.now() })
+        const eventName = incoMessage ? 'IncoMessage' : 'privateMessage';
+        socket.emit(eventName, newMessage);
         setMessage('');
         // console.log('the message array :',messages)
       }
@@ -91,7 +93,7 @@ const MessageInput = ({ socket, setMessages, messages }) => {
   }
 
   return (
-    <div className='bg-[#172032] w-full absolute bottom-0 flex items-center'>
+    <div className='bg-[#e1e4e9] text-black w-full absolute bottom-0 flex items-center'>
       <input value={message} onChange={(e) => setMessage(e.target.value)} className='w-full bg-transparent px-5 py-4 focus:outline-none border-none' type="text" placeholder='Enter your message' autoFocus />
       <div onClick={(e) => modifyText(e)} className='aspect-square w-[40px] h-[40px] hover:bg-blue-600 transition-all rounded-full flex items-center justify-center'>
         <i className="text-xl ri-ai-generate-2"></i>

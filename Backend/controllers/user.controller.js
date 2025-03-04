@@ -168,6 +168,25 @@ module.exports.fetchMessage = async (req, res, next) => {
   }
 };
 
+module.exports.fetchLastMessage = async (req, res, next) => {
+  try {
+    const { senderId, receiverId } = req.query;
+    const lastSeenMessage = await MessageModel.findOne({
+      $or: [
+        { senderId: senderId, receiverId: receiverId },
+        { senderId: receiverId, receiverId: senderId },
+      ],
+    }).sort({ createdAt: -1 }).limit(1);
+    // console.log('the last seen message is :',lastSeenMessage)
+    if(!lastSeenMessage){
+      return res.status(200).json({message : 'No message found'})
+    }
+    res.status(200).json(lastSeenMessage);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+}
+
 module.exports.updateProfilePic = async (req, res, next) => {
   const {userId} = req.body;
   console.log('the userId is :',userId)

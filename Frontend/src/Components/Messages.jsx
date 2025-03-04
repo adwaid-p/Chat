@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import Contact from './Contact'
 import axios from 'axios'
+import { useSocket } from '../context/SocketContext';
 
 const Messages = () => {
 
@@ -8,7 +9,20 @@ const Messages = () => {
   const [suggestions, setSuggestions] = useState([])
   const [loading, setLoading] = useState(false)
   const [friends, setFriends] = useState([])
-  const [currentUser,setCurrentUser] = useState('')
+  const [currentUser, setCurrentUser] = useState('')
+
+  const [latestMessage, setLatestMessage] = useState(null);
+  const socket = useSocket();
+
+useEffect(() => {
+  if(!socket) return;
+
+  socket.on('receiveMessage', (data) => {
+    setLatestMessage(data);
+  });
+  // console.log('the latest message is ',latestMessage)
+  return () => socket.off('receiveMessage');
+},[socket])
 
   const fetchSuggestion = async () => {
     if (!search) {
@@ -27,12 +41,12 @@ const Messages = () => {
     }
   }
 
-  const addFriend = async(friendId)=>{
+  const addFriend = async (friendId) => {
     try {
       const userId = JSON.parse(localStorage.getItem('user_id'))
       // console.log('the user id is',userId)
       // console.log('the friend id is',friendId)
-      const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/user/update_friend`,{userId,friendId})
+      const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/user/update_friend`, { userId, friendId })
       // console.log('the resonse data is after updation',response.data)
       setFriends(response.data.friends)
     } catch (error) {
@@ -42,31 +56,31 @@ const Messages = () => {
 
 
 
-useEffect(() => {
-  const findUser = async()=>{
+  useEffect(() => {
+    const findUser = async () => {
 
-    try {
-          const userId = JSON.parse(localStorage.getItem('user_id'))
-    // const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/user/find_User`,{userId})
-    const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/user/find_User?id=${userId}`);
-    // const data = response.data
-    setCurrentUser(response.data)
-    // console.log(data)
-    } catch (error) {
-      console.log('Error while fetching Data',error.message)
+      try {
+        const userId = JSON.parse(localStorage.getItem('user_id'))
+        // const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/user/find_User`,{userId})
+        const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/user/find_User?id=${userId}`);
+        // const data = response.data
+        setCurrentUser(response.data)
+        // console.log(data)
+      } catch (error) {
+        console.log('Error while fetching Data', error.message)
+      }
+
     }
-
-   }
-   findUser()
+    findUser()
     // setCurrentUser(findUser())
     // console.log('the current user data: ',currentUser)
-}, [])
+  }, [])
 
-useEffect(() => {
-  if(currentUser?.friends){
-    setFriends(currentUser?.friends)
-  }
-}, [currentUser])
+  useEffect(() => {
+    if (currentUser?.friends) {
+      setFriends(currentUser?.friends)
+    }
+  }, [currentUser])
 
 
 
@@ -82,7 +96,7 @@ useEffect(() => {
     <div className='h-screen w-full p-5 flex flex-col gap-5'>
       {/* <h1 className='text-3xl font-semibold'>Chats</h1> */}
       <div>
-        <input value={search} onChange={(e) => setSearch(e.target.value)} className='w-full bg-[#141b28] p-2 px-5 rounded-3xl focus:outline-gray-500 border-none relative' type="text" placeholder='Search' />
+        <input value={search} onChange={(e) => setSearch(e.target.value)} className='w-full bg-[#e1e4e9] text-black p-2 px-5 rounded-3xl focus:outline-gray-500 border-none relative placeholder:text-gray-500' type="text" placeholder='Search' />
         {search &&
           <div className='w-[250px] mt-3 bg-[#141b28] p-5 fixed flex flex-col gap-5'>
             {
@@ -106,13 +120,19 @@ useEffect(() => {
           </div>
         }
       </div>
-      <div className='h-full overflow-y-auto flex flex-col gap-2 pr-2'>
-        {
-          friends.map((friend) => (
-            // console.log(friend)
-            <Contact key={friend} friend={friend}/>
-          ))
-        }
+      <div className='h-full flex flex-col gap-5 pr-2'>
+        <div className='flex items-center gap-2'>
+          <button className='bg-[#201f1f] px-4 py-1 rounded text-[14px] font-semibold'>Inbox</button>
+          <button className='bg-[#201f1f] px-4 py-1 rounded text-[14px] font-semibold'>Groups</button>
+        </div>
+        <div className='flex flex-col gap-1 h-full overflow-y-auto overflow-x-hidden'>
+          {
+            friends.map((friend) => (
+              // console.log(friend)
+              <Contact key={friend} friend={friend} latestMessage={latestMessage} />
+            ))
+          }
+        </div>
       </div>
     </div>
   )

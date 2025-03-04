@@ -6,10 +6,10 @@ import SideBar from "../Components/SideBar"
 
 const MainPage = () => {
   return (
-    <div className="h-screen bg-[#0c1121] relative text-white">
-      <div className="fixed top-0 left-0 w-full h-full">
+    <div className="h-screen bg-[#F5F5F5] relative text-white">
+      {/* <div className="fixed top-0 left-0 w-full h-full">
         <BackgroundLine />
-      </div>
+      </div> */}
       <div className="w-full h-full fixed flex">
         <SideBar/>
         <MessageContainer/>

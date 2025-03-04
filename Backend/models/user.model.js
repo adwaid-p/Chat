@@ -35,6 +35,10 @@ const userSchema = new mongoose.Schema({
         type : Date,
         default : Date.now
     },
+    // lastSeenMessage : {
+    //     type : String,
+    //     default : 'No message'
+    // },
     socketId : {
         type : String,
     }

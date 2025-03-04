@@ -73,19 +73,19 @@ const MessageNav = () => {
   }
 
   return (
-    <div className='py-3 px-3 border-b border-gray-800 bg-[#172032] flex justify-between items-center'>
+    <div className='py-3 px-3 border-b border-gray-300 bg-[#fcfcfc] text-black flex justify-between items-center'>
       <div className='flex gap-2 items-center'>
         <div className='relative'>
           {/* <div className='aspect-square w-[40px] h-[40px] rounded-full'> */}
             <img className='aspect-square w-[40px] h-[40px] rounded-full object-cover' src={receiver.profilePic} alt="" />
           {/* </div> */}
           {isOnline && (
-            <div className='absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-[#172032]'></div>
+            <div className='absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 '></div>
           )}
         </div>
         <div className='flex flex-col'>
           <div className='font-semibold'>{receiver.userName}</div>
-          <div className='text-xs text-gray-400'>
+          <div className='text-xs text-gray-700'>
             {isOnline ? 'online' : formatLastSeen(lastSeen)}
           </div>
         </div>
@@ -93,13 +93,13 @@ const MessageNav = () => {
 
 
       <div className='flex gap-1 items-center justify-center'>
-        <div onClick={() => setCallState(!callState)} className={`aspect-square w-[40px] h-[40px] hover:bg-blue-600 transition-all rounded-full flex items-center justify-center`}>
+        <div onClick={() => setCallState(!callState)} className={`aspect-square w-[40px] h-[40px] hover:bg-gray-300 transition-all rounded-full flex items-center justify-center`}>
           <i className="text-2xl ri-video-on-fill"></i>
         </div>
-        <div onClick={() => console.log('audio call')} className={`aspect-square w-[40px] h-[40px] hover:bg-blue-600 transition-all rounded-full flex items-center justify-center`}>
+        <div onClick={() => console.log('audio call')} className={`aspect-square w-[40px] h-[40px] hover:bg-gray-300 transition-all rounded-full flex items-center justify-center`}>
           <i className="text-2xl ri-phone-fill"></i>
         </div>
-        <div onClick={() => setIncoMessage(!incoMessage)} className={`${incoMessage && 'bg-blue-700'} aspect-square w-[40px] h-[40px] hover:bg-blue-600 transition-all rounded-full flex items-center justify-center`}>
+        <div onClick={() => setIncoMessage(!incoMessage)} className={`${incoMessage && 'bg-blue-700'} aspect-square w-[40px] h-[40px] hover:bg-gray-300 transition-all rounded-full flex items-center justify-center`}>
           <i className="text-2xl ri-chat-private-line"></i>
         </div>
       </div>

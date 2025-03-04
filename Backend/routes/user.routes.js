@@ -29,6 +29,8 @@ router.get('/find_User',userController.findProfile)
 
 router.get('/fetch_message',userController.fetchMessage)
 
+router.get('/fetch_last_message',userController.fetchLastMessage)
+
 router.post('/profile_pic',upload.single('profilePic'),userController.updateProfilePic)
 
 module.exports = router
