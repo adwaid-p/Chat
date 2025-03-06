@@ -49,7 +49,7 @@ const AiChatContainer = () => {
 
     // console.log(messages)
     return (
-        <div className='absolute bottom-0 left-[50px] min-w-[325px] h-[90.8vh] bg-[#0c1121]'>
+        <div className='absolute z-10 bottom-0 left-[50px] min-w-[325px] h-[90.8vh] bg-[#0c1121]'>
             <div className='relative h-full w-full'>
                 <div className='bg-[#172032] flex items-center justify-start gap-2 text-lg border-t border-gray-800 py-4 px-3'>
                     <img className='aspect-square w-[40px] h-[40px] rounded-full object-cover object-center' src="https://i.pinimg.com/736x/80/55/e6/8055e6cc671a7010711acadd6440e893.jpg" alt="" />

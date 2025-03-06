@@ -9,9 +9,17 @@ const messageSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     },
+    groupId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Group'
+    },
     message: {
         type: String,
         required: true
+    },
+    seen: {
+        type: Boolean,
+        default: false
     },
     createdAt: {
         type: Date,

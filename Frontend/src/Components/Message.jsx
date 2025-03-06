@@ -16,7 +16,7 @@ const Message = ({ message, currentUserId }) => {
   // console.log(istTime)
 
   return (
-    <div className={`inline-block w-fit max-w-[450px] px-5 py-[4px] break-words ${isSentByCurrentUser ? 'bg-blue-600 rounded-l-xl rounded-br-xl' : 'bg-[#141b28] rounded-r-xl rounded-bl-xl'}`}>
+    <div className={`inline-block w-fit max-w-[250px] md:max-w-[450px] px-5 py-[4px] pt-2 break-words ${isSentByCurrentUser ? 'bg-blue-600 rounded-l-xl rounded-br-xl' : 'bg-[#141b28] rounded-r-xl rounded-bl-xl'}`}>
       {/* <div className='text-sm font-semibold'>Adwid</div> */}
       <div className='pr-10 tetx-sm'>
         {message.message}

@@ -50,7 +50,7 @@ const Profile = () => {
     };
 
     return (
-        <div className='absolute bottom-16 left-14 px-5 py-5 min-w-[180px] bg-[#0c1121]'>
+        <div className='absolute z-10 bottom-16 left-14 px-5 py-5 min-w-[180px] bg-[#0c1121]'>
             <div className='flex gap-2 items-center'>
                 <img className='size-[40px] object-cover rounded-full' src={profile.profilePic} alt="" />
                 {profile.userName}
