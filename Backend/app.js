@@ -11,6 +11,7 @@ const PORT = process.env.PORT || 3000;
 const connectToDb = require("./db/db");
 const userRoutes = require("./routes/user.routes");
 const aiRoutes = require("./routes/ai.routes");
+const groupMessageRoutes = require("./routes/group.routes");
 const cookieParser = require("cookie-parser");
 const userModel = require("./models/user.model");
 const MessageModel = require("./models/message.model");
@@ -37,6 +38,8 @@ app.get("/", (req, res) => {
 app.use("/user", userRoutes);
 
 app.use("/ai", aiRoutes);
+
+app.use("/groupMessage", groupMessageRoutes)
 
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

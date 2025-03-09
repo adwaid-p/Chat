@@ -10,7 +10,7 @@ const groupMessageSchema = new mongoose.Schema({
         default: 'https://cdn-icons-png.flaticon.com/512/149/149071.png',
         required: true
     },
-    memebers: [{
+    members: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     }],
