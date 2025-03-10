@@ -8,19 +8,22 @@ import MessageContext from './context/MessageContext.jsx';
 import IncoMessageContext from './context/IncoMessageContext.jsx';
 import CallContext from './context/CallContext.jsx';
 import { SocketProvider } from './context/SocketContext';
+import GroupContext from './context/GroupContext.jsx';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <SocketProvider>
       <UserContext>
         <MessageContext>
-          <IncoMessageContext>
-            <CallContext>
-              <BrowserRouter>
-                <App />
-              </BrowserRouter>
-            </CallContext>
-          </IncoMessageContext>
+          <GroupContext>
+            <IncoMessageContext>
+              <CallContext>
+                <BrowserRouter>
+                  <App />
+                </BrowserRouter>
+              </CallContext>
+            </IncoMessageContext>
+          </GroupContext>
         </MessageContext>
       </UserContext>
     </SocketProvider>

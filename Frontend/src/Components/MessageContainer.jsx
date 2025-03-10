@@ -8,12 +8,14 @@ import { MessageDataContext } from '../context/MessageContext'
 import { CallDataContext } from '../context/CallContext'
 import VideoCall from './VideoCall'
 import { useSocket } from '../context/SocketContext';
+import { GroupDataContext } from '../context/GroupContext'
 
 // const socket = io('http://localhost:3000')
 
 const MessageContainer = () => {
 
   const { receiver, setReceiver } = useContext(MessageDataContext)
+  const {currentGroup, setCurrentGroup} = useContext(GroupDataContext)
   const { callState, setCallState } = useContext(CallDataContext)
   const socket = useSocket();
   // console.log('the call state is', callState)
@@ -24,7 +26,7 @@ const MessageContainer = () => {
 
   const userId = JSON.parse(localStorage.getItem('user_id'))
 
-  const fetchMessages = async () => {
+  const fetchPrivateMessage = async () => {
     const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/user/fetch_message`, {
       params: { senderId: userId, receiverId: receiver._id }
     })
@@ -32,13 +34,29 @@ const MessageContainer = () => {
     setMessages(response.data)
   }
 
+  const fetchGroupMessages = async ()=>{
+    try {
+      const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/groupMessage/fetch_message`, {
+        params: {
+          groupId: currentGroup._id
+        }
+      })
+      setMessages(response.data)
+    } catch (error) {
+      console.log('Error while fetching group messages ', error)
+    }
+  }
+
   // console.log('the receiver is for offline test', receiver)
 
   useEffect(() => {
+    setMessages([])
     if (receiver?._id) {
-      fetchMessages();
+      fetchPrivateMessage();
+    } else if(currentGroup?._id){
+      fetchGroupMessages()
     }
-  }, [receiver?._id]);
+  }, [receiver?._id, currentGroup?._id]);
 
   // socket.on('connect', () => {
   //   console.log('connected',socket.id);
@@ -49,19 +67,33 @@ const MessageContainer = () => {
   useEffect(() => {
     // socket.connect()
     // socket.emit('join', userId)
-    if(!socket) return;
-    socket.on('receiveMessage', (data) => {
-      // console.log('entered the receive message')
-      // console.log('the message is from the frontend', data)
-      setMessages((prevMessages) => [...prevMessages, data])
-    })
-    // socket.on('Status', (data) => {console.log(data)})
-      
+    if (!socket) return;
+    
+    socket.off('receiveMessage');
+    socket.off('groupMessage');
+
+    if (receiver && receiver._id) {
+      socket.on('receiveMessage', (data) => {
+        // console.log('entered the receive message')
+        // console.log('the message is from the frontend', data)
+        if((data.receiverId === userId && data.senderId === receiver._id) || (data.senderId === userId && data.receiverId === receiver._id)){
+          setMessages((prevMessages) => [...prevMessages, data])
+        }
+      })
+      // socket.on('Status', (data) => {console.log(data)})
+
+    } else if( currentGroup && currentGroup._id){
+      socket.emit('joinGroup', currentGroup._id)
+      socket.on('groupMessage', (data) => {
+        setMessages((prevMessages) => [...prevMessages, data])
+      })
+    }
     return () => {
       socket.off("receiveMessage");
+      socket.off("groupMessage");
       // socket.disconnect();
     };
-  }, [socket])
+  }, [socket, receiver?._id, currentGroup?._id, userId])
 
   // useEffect(() => {
   //   if (messageContainerRef.current) {
@@ -85,9 +117,9 @@ const MessageContainer = () => {
       <div className='h-[82.5vh]'>
         {callState ?
           <VideoCall />
-          : <div ref={messageContainerRef}  className='h-full px-3 py-5 overflow-y-auto flex flex-col gap-5'>
+          : <div ref={messageContainerRef} className='h-full px-3 py-5 overflow-y-auto flex flex-col gap-5'>
             {
-              receiver && messages.map((msg, index) => (
+              messages && messages.map((msg, index) => (
                 // console.log(msg)
                 <div key={index} className={`flex w-full ${msg.senderId === userId && 'justify-end'}`}>
                   <Message message={msg} currentUserId={userId} />

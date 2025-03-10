@@ -4,12 +4,14 @@ import IncoMessageContext, { IncoMessageContextValue } from '../context/IncoMess
 import { CallDataContext } from '../context/CallContext'
 // import { io } from 'socket.io-client'
 import { useSocket } from '../context/SocketContext';
+import { GroupDataContext } from '../context/GroupContext';
 
 const MessageNav = () => {
 
   const { receiver } = useContext(MessageDataContext)
   const { incoMessage, setIncoMessage } = useContext(IncoMessageContextValue)
   const { callState, setCallState } = useContext(CallDataContext)
+  const {currentGroup, setCurrentGroup} = useContext(GroupDataContext)
   const [isOnline, setIsOnline] = useState(false)
   const [lastSeen, setLastSeen] = useState(null)
   const socket = useSocket();
@@ -77,14 +79,14 @@ const MessageNav = () => {
       <div className='flex gap-2 items-center'>
         <div className='relative'>
           {/* <div className='aspect-square w-[40px] h-[40px] rounded-full'> */}
-            <img className='aspect-square w-[40px] h-[40px] rounded-full object-cover' src={receiver.profilePic} alt="" />
+            <img className='aspect-square w-[40px] h-[40px] rounded-full object-cover' src={receiver?receiver.profilePic: currentGroup.profilePic} alt="" />
           {/* </div> */}
           {isOnline && (
             <div className='absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 '></div>
           )}
         </div>
         <div className='flex flex-col'>
-          <div className='font-semibold'>{receiver.userName}</div>
+          <div className='font-semibold'>{receiver?receiver.userName: currentGroup.name}</div>
           <div className='text-xs text-gray-700'>
             {isOnline ? 'online' : formatLastSeen(lastSeen)}
           </div>

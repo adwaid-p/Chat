@@ -3,11 +3,13 @@ import { UserDataContext } from '../context/UserContext';
 import axios from 'axios';
 import { MessageDataContext } from '../context/MessageContext'
 import { IncoMessageContextValue } from '../context/IncoMessageContext';
+import { GroupDataContext } from '../context/GroupContext';
 
 const MessageInput = ({ socket, setMessages, messages }) => {
 
   const [user, setUser] = useState('')
   const { receiver, setReceiver } = useContext(MessageDataContext);
+  const {currentGroup, setCurrentGroup} = useContext(GroupDataContext)
   const { incoMessage, setIncoMessage } = useContext(IncoMessageContextValue)
   // console.log(incoMessage)
   // console.log('the receiver is ', receiver._id)
@@ -31,11 +33,35 @@ const MessageInput = ({ socket, setMessages, messages }) => {
     if (e.key === 'Enter') {
       e.preventDefault();
       if (message.trim() !== '') {
-        const newMessage = { senderId: user._id, receiverId: receiver._id, message, createdAt: Date.now() }
+        let newMessage = null
+        let eventName = ''
+
+        if(currentGroup && currentGroup._id){
+          newMessage = {
+            senderId: user._id,
+            groupId: currentGroup._id,
+            message,
+            createdAt: Date.now()
+          }
+          eventName = incoMessage ? 'IncoGroupMessage' : 'groupMessage';
+        } else if(receiver && receiver._id){
+          newMessage = {
+            senderId: user._id,
+            receiverId: receiver._id,
+            message,
+            createdAt: Date.now()
+          }
+          eventName = incoMessage ? 'IncoMessage' : 'privateMessage';
+        } else {
+          console.warn('No Group or receiver is selected')
+          return;
+        }
+
+        // newMessage = { senderId: user._id, receiverId: receiver._id, message, createdAt: Date.now() }
         incoMessage?setMessages((prevMessages) => [...prevMessages, newMessage]):null
         // socket.emit('privateMessage', {senderId: user._id, receiverId: receiver._id, message});
         // incoMessage ? socket.emit('IncoMessage', { senderId: user._id, receiverId: receiver._id, message, createdAt: Date.now() }) : socket.emit('privateMessage', { senderId: user._id, receiverId: receiver._id, message, createdAt: Date.now() })
-        const eventName = incoMessage ? 'IncoMessage' : 'privateMessage';
+        // eventName = incoMessage ? 'IncoMessage' : 'privateMessage';
         socket.emit(eventName, newMessage);
         setMessage('');
         // console.log('the message array :',messages)
@@ -48,10 +74,13 @@ const MessageInput = ({ socket, setMessages, messages }) => {
   }, [])
 
   useEffect(() => {
+    if(currentGroup && currentGroup._id){
+      socket.emit('joinGroup', currentGroup._id)
+    }
     window.addEventListener('keydown', sendMessage)
     // currentUser()
     return () => window.removeEventListener('keydown', sendMessage)
-  }, [message])
+  }, [message, receiver, currentGroup, user, incoMessage])
 
   // console.log(user)
 

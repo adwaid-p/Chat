@@ -1,8 +1,10 @@
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import Contact from './Contact'
 import axios from 'axios'
 import { useSocket } from '../context/SocketContext';
 import GroupMessage from './GroupMessage';
+import { MessageDataContext } from '../context/MessageContext';
+import { GroupDataContext } from '../context/GroupContext';
 
 const Messages = () => {
 
@@ -19,6 +21,12 @@ const Messages = () => {
   const [showUser, setShowUser] = useState(true)
   const [showCreateGroupCard, setShowCreateGroupCard] = useState(false)
   const [groupName, setGroupName] = useState('')
+
+  const [groups, setGroups] = useState([])
+
+
+  const { receiver, setReceiver } = useContext(MessageDataContext)
+  const {currentGroup, setCurrentGroup} = useContext(GroupDataContext)
 
   const [latestMessage, setLatestMessage] = useState(null);
   const socket = useSocket();
@@ -66,9 +74,9 @@ const Messages = () => {
     }
   };
 
+  const userId = JSON.parse(localStorage.getItem('user_id'))
   const addFriend = async (friendId) => {
     try {
-      const userId = JSON.parse(localStorage.getItem('user_id'))
       // console.log('the user id is',userId)
       // console.log('the friend id is',friendId)
       const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/user/update_friend`, { userId, friendId })
@@ -146,6 +154,29 @@ const Messages = () => {
     setShowCreateGroupCard(false);
   }
 
+  // const userId = localStorage.getItem('user_id')
+  // console.log('userId', userId)
+
+  useEffect(() => {
+    const fetchGroups = async () => {
+      try {
+        // if (!currentUser?._id) return;
+        const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/groupMessage/getGroups`, {
+          params: {
+            userId: userId
+          }
+        })
+        setGroups(response.data)
+        // console.log('the response from the server for groups : ', response)
+      } catch (error) {
+        console.log('Error while fetching groups ', error)
+      }
+    }
+    fetchGroups()
+  }, [])
+
+  console.log('the response from the server for groups : ', groups)
+
   return (
 
     <div className='h-screen md:relative w-full p-5 flex flex-col gap-5'>
@@ -180,11 +211,13 @@ const Messages = () => {
           <button onClick={() => {
             setShowGroup(false)
             setShowUser(true)
+            setCurrentGroup('')
           }}
             className='bg-[#201f1f] px-4 py-1 rounded text-[14px] font-semibold'>Inbox</button>
           <button onClick={() => {
             setShowGroup(true)
             setShowUser(false)
+            setReceiver('')
           }}
             className='bg-[#201f1f] px-4 py-1 rounded text-[14px] font-semibold'>Groups</button>
           {
@@ -198,13 +231,13 @@ const Messages = () => {
             showUser ? (friends.map((friend) => (
               // console.log(friend)
               <Contact key={friend} friend={friend} latestMessage={latestMessage} />
-            ))) : showGroup ? (<GroupMessage />) : null
-          }
-          {
-            showGroup ? (friends.map((friend) => (
+            ))) : showGroup ? (
+            // <GroupMessage groups={groups} />
+            groups.map((group) => (
               // console.log(friend)
-              <Contact key={friend} friend={friend} latestMessage={latestMessage} />
-            ))) : showGroup ? (<GroupMessage />) : null
+              <GroupMessage key={group._id} group={group} />
+            ))
+          ) : null
           }
         </div>
 

@@ -39,7 +39,7 @@ app.use("/user", userRoutes);
 
 app.use("/ai", aiRoutes);
 
-app.use("/groupMessage", groupMessageRoutes)
+app.use("/groupMessage", groupMessageRoutes);
 
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
@@ -143,6 +143,27 @@ io.on("connection", (socket) => {
         });
       }
     );
+    socket.on(
+      "groupMessage",
+      async ({ senderId, groupId, message, createdAt }) => {
+        const newMessage = await MessageModel.create({
+          senderId,
+          groupId,
+          message,
+        });
+        io.to(groupId).emit("groupMessage", {
+          _id: newMessage._id,
+          senderId,
+          groupId,
+          message,
+          createdAt: newMessage.createdAt,
+        });
+      }
+    );
+    socket.on("joinGroup", (groupId) => {
+      console.log(`user joined group : ${groupId}`);
+      socket.join(groupId);
+    });
   } catch (error) {
     console.log("The error is ", error.message);
   }
