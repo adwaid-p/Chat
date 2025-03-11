@@ -7,7 +7,7 @@ const Message = ({ message, currentUserId }) => {
   const [sender, setSender] = useState('')
   const { currentGroup } = useContext(GroupDataContext)
 
-  console.log('the message in the message box', message.senderId)
+  // console.log('the message in the message box', message.senderId)
   // console.log('The current user is : ',currentUserId)
   const isSentByCurrentUser = message.senderId === currentUserId;
   // console.log(message.createdAt)
@@ -33,14 +33,18 @@ const Message = ({ message, currentUserId }) => {
   }, [message.senderId]);
 
   return (
-    <div className={`inline-block w-fit max-w-[250px] md:max-w-[450px] px-5 py-[4px] pt-2 break-words ${isSentByCurrentUser ? 'bg-blue-600 rounded-l-xl rounded-br-xl' : 'bg-[#141b28] rounded-r-xl rounded-bl-xl'}`}>
-      {
-      currentGroup && <div className='text-xs font-medium'>{sender.userName}</div>
-      }
-      <div className='pr-10 tetx-sm'>
-        {message.message}
+    <div className='flex items-start gap-2'>
+      {(!isSentByCurrentUser && currentGroup) && <img className='size-[30px] rounded-full object-cover' src={sender.profilePic} alt="" />}
+      <div className={`inline-block w-fit max-w-[250px] md:max-w-[450px] px-5 py-[4px] pt-2 break-words ${isSentByCurrentUser ? 'bg-blue-600 rounded-l-xl rounded-br-xl' : 'bg-[#141b28] rounded-r-xl rounded-bl-xl'}`}>
+        {
+          currentGroup && <div className='text-xs font-medium'>{sender.userName}</div>
+        }
+        <div className='pr-10 text-sm'>
+          {message.message}
+        </div>
+        <div className={`text-[11px] ${isSentByCurrentUser ? 'text-white' : 'text-gray-400'} text-right pl-10 -mt-1`}>{istTime}</div>
       </div>
-      <div className={`text-[11px] ${isSentByCurrentUser ? 'text-white' : 'text-gray-400'} text-right pl-10 -mt-1`}>{istTime}</div>
+      {(isSentByCurrentUser && currentGroup) && <img className='size-[30px] rounded-full object-cover' src={sender.profilePic} alt="" />}
     </div>
   )
 }

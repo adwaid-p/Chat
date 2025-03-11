@@ -5,6 +5,7 @@ import { CallDataContext } from '../context/CallContext'
 // import { io } from 'socket.io-client'
 import { useSocket } from '../context/SocketContext';
 import { GroupDataContext } from '../context/GroupContext';
+import Information from './Information';
 
 const MessageNav = () => {
 
@@ -14,6 +15,7 @@ const MessageNav = () => {
   const {currentGroup, setCurrentGroup} = useContext(GroupDataContext)
   const [isOnline, setIsOnline] = useState(false)
   const [lastSeen, setLastSeen] = useState(null)
+  const [showInfo, setShowInfo] = useState(false)
   const socket = useSocket();
   // console.log('value of inco',incoMessage)
   // console.log(receiver)
@@ -77,7 +79,7 @@ const MessageNav = () => {
   return (
     <div className='py-3 px-3 border-b border-gray-300 bg-[#fcfcfc] text-black flex justify-between items-center'>
       <div className='flex gap-2 items-center'>
-        <div className='relative'>
+        <div onClick={()=>setShowInfo(!showInfo)} className='relative cursor-pointer'>
           {/* <div className='aspect-square w-[40px] h-[40px] rounded-full'> */}
             <img className='aspect-square w-[40px] h-[40px] rounded-full object-cover' src={receiver?receiver.profilePic: currentGroup.profilePic} alt="" />
           {/* </div> */}
@@ -85,6 +87,11 @@ const MessageNav = () => {
             <div className='absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 '></div>
           )}
         </div>
+          {(showInfo && currentGroup) && (
+            <div className='absolute top-[4.1rem] text-red bg-blue-50'>
+              <Information/>
+            </div>
+          )}
         <div className='flex flex-col'>
           <div className='font-semibold'>{receiver?receiver.userName: currentGroup.name}</div>
           <div className='text-xs text-gray-700'>

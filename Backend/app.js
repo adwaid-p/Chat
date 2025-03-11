@@ -15,6 +15,7 @@ const groupMessageRoutes = require("./routes/group.routes");
 const cookieParser = require("cookie-parser");
 const userModel = require("./models/user.model");
 const MessageModel = require("./models/message.model");
+const { group } = require("console");
 
 connectToDb();
 
@@ -136,6 +137,7 @@ io.on("connection", (socket) => {
         if (!receiver || !receiver.socketId) {
           console.log("Receiver not found or offline", receiverId);
         }
+        console.log("the inco message is:", receiver.socketId);
         io.to(receiver.socketId).emit("receiveMessage", {
           senderId,
           message,
@@ -160,10 +162,45 @@ io.on("connection", (socket) => {
         });
       }
     );
+    socket.on(
+      "IncoGroupMessage",
+      async ({ senderId, groupId, message, createdAt }) => {
+        // const receiver = await userModel.findById(receiverId);
+        // if (!receiver || !receiver.socketId) {
+        //   console.log("Receiver not found or offline", receiverId);
+        // }
+        // console.log('the inco message is:', receiver.socketId);
+        io.to(groupId).emit("groupMessage", {
+          senderId,
+          message,
+          createdAt,
+        });
+      }
+    );
     socket.on("joinGroup", (groupId) => {
-      console.log(`user joined group : ${groupId}`);
+      // console.log(`user joined group : ${groupId}`);
       socket.join(groupId);
     });
+    // socket.on("typing", async ({ senderId, receiverId, groupId }) => {
+    //   try {
+    //     if (groupId) {
+    //       io.to(groupId).emit("typing", { senderId });
+    //     } else if(receiverId){
+    //       const receiver = await userModel.findById(receiverId);
+    //       if (!receiver || !receiver.socketId) {
+    //         console.log("Receiver not found or offline", receiverId);
+    //         return;
+    //       }
+    //       // console.log('the inco message is:', receiver.socketId);
+    //       io.to(receiver.socketId).emit("typing", {
+    //         senderId,
+    //         receiverId,
+    //       });
+    //     }
+    //   } catch (error) {
+    //     console.log("Error in Typing event:", error.message);
+    //   }
+    // });
   } catch (error) {
     console.log("The error is ", error.message);
   }

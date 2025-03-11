@@ -15,13 +15,15 @@ import { GroupDataContext } from '../context/GroupContext'
 const MessageContainer = () => {
 
   const { receiver, setReceiver } = useContext(MessageDataContext)
-  const {currentGroup, setCurrentGroup} = useContext(GroupDataContext)
+  const { currentGroup, setCurrentGroup } = useContext(GroupDataContext)
   const { callState, setCallState } = useContext(CallDataContext)
   const socket = useSocket();
   // console.log('the call state is', callState)
   // console.log('the receicer is ',receiver)
 
   const [messages, setMessages] = useState([])
+  const [isTyping, setIsTyping] = useState(false) // New state for typing indicator
+  const [typingTimeout, setTypingTimeout] = useState(null) // For handling typing timeout
   const messageContainerRef = useRef(null);
 
   const userId = JSON.parse(localStorage.getItem('user_id'))
@@ -34,7 +36,7 @@ const MessageContainer = () => {
     setMessages(response.data)
   }
 
-  const fetchGroupMessages = async ()=>{
+  const fetchGroupMessages = async () => {
     try {
       const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/groupMessage/fetch_message`, {
         params: {
@@ -53,7 +55,7 @@ const MessageContainer = () => {
     setMessages([])
     if (receiver?._id) {
       fetchPrivateMessage();
-    } else if(currentGroup?._id){
+    } else if (currentGroup?._id) {
       fetchGroupMessages()
     }
   }, [receiver?._id, currentGroup?._id]);
@@ -68,32 +70,115 @@ const MessageContainer = () => {
     // socket.connect()
     // socket.emit('join', userId)
     if (!socket) return;
-    
+
     socket.off('receiveMessage');
     socket.off('groupMessage');
+    // socket.off('typing')
 
     if (receiver && receiver._id) {
       socket.on('receiveMessage', (data) => {
         // console.log('entered the receive message')
-        // console.log('the message is from the frontend', data)
-        if((data.receiverId === userId && data.senderId === receiver._id) || (data.senderId === userId && data.receiverId === receiver._id)){
-          setMessages((prevMessages) => [...prevMessages, data])
-        }
+        console.log('the message is from the frontend', data)
+        // if((data.receiverId === userId && data.senderId === receiver._id) || (data.senderId === userId && data.receiverId === receiver._id)){
+        setMessages((prevMessages) => [...prevMessages, data])
+        // }
+        setIsTyping(false)
       })
+
+      // socket.on('typing', (data) => {
+      //   if (data.senderId === receiver._id) {
+      //     console.log('Setting isTyping to true');
+      //     setIsTyping(true);
+      //     if (typingTimeout) clearTimeout(typingTimeout);
+      //     const timeout = setTimeout(() => {
+      //       console.log('Resetting isTyping to false');
+      //       setIsTyping(false)
+      //     }, 2000);
+      //     setTypingTimeout(timeout);
+      //   }
+      // });
+
       // socket.on('Status', (data) => {console.log(data)})
 
-    } else if( currentGroup && currentGroup._id){
+    } else if (currentGroup && currentGroup._id) {
       socket.emit('joinGroup', currentGroup._id)
       socket.on('groupMessage', (data) => {
         setMessages((prevMessages) => [...prevMessages, data])
       })
     }
+    // socket.on('typing', (data) => {
+    //   console.log('typing')
+    //   // io.to(receiverId).emit('typing', senderId)
+    // })
     return () => {
       socket.off("receiveMessage");
       socket.off("groupMessage");
+      // socket.off('typing')
+      // if (typingTimeout) clearTimeout(typingTimeout);
+      // setIsTyping(false);
       // socket.disconnect();
     };
   }, [socket, receiver?._id, currentGroup?._id, userId])
+
+
+  // useEffect(() => {
+  //   if (!socket) return;
+  
+  //   socket.off('receiveMessage');
+  //   socket.off('groupMessage');
+  //   socket.off('typing');
+  
+  //   if (receiver && receiver._id) {
+  //     socket.on('receiveMessage', (data) => {
+  //       console.log('the message is from the frontend', data)
+  //       setMessages((prevMessages) => [...prevMessages, data])
+  //       setIsTyping(false); // Reset typing when message received
+  //     });
+  
+  //     socket.on('typing', (data) => {
+  //       if (data.senderId === receiver._id) {
+  //         console.log('Setting isTyping to true');
+  //         setIsTyping(true);
+          
+  //         // Clear any existing timeout
+  //         if (typingTimeout) clearTimeout(typingTimeout);
+          
+  //         // Set new timeout to hide typing indicator after 3 seconds
+  //         const timeout = setTimeout(() => {
+  //           console.log('Resetting isTyping to false');
+  //           setIsTyping(false);
+  //         }, 3000);
+          
+  //         setTypingTimeout(timeout);
+  //       }
+  //     });
+  //   } else if (currentGroup && currentGroup._id) {
+  //     socket.emit('joinGroup', currentGroup._id);
+  //     socket.on('groupMessage', (data) => {
+  //       setMessages((prevMessages) => [...prevMessages, data]);
+  //     });
+      
+  //     // Add typing indicator for groups too
+  //     socket.on('typing', (data) => {
+  //       if (data.senderId !== userId) {
+  //         setIsTyping(true);
+  //         if (typingTimeout) clearTimeout(typingTimeout);
+  //         const timeout = setTimeout(() => {
+  //           setIsTyping(false);
+  //         }, 3000);
+  //         setTypingTimeout(timeout);
+  //       }
+  //     });
+  //   }
+  
+  //   return () => {
+  //     socket.off("receiveMessage");
+  //     socket.off("groupMessage");
+  //     socket.off('typing');
+  //     if (typingTimeout) clearTimeout(typingTimeout);
+  //     setIsTyping(false);
+  //   };
+  // }, [socket, receiver?._id, currentGroup?._id, userId]);
 
   // useEffect(() => {
   //   if (messageContainerRef.current) {
@@ -126,6 +211,9 @@ const MessageContainer = () => {
                 </div>
               ))
             }
+            {isTyping && receiver && !currentGroup && (
+              <div className='text-black'>Typing...</div>
+            )}
           </div>
         }
 

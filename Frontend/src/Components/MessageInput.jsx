@@ -9,8 +9,9 @@ const MessageInput = ({ socket, setMessages, messages }) => {
 
   const [user, setUser] = useState('')
   const { receiver, setReceiver } = useContext(MessageDataContext);
-  const {currentGroup, setCurrentGroup} = useContext(GroupDataContext)
+  const { currentGroup, setCurrentGroup } = useContext(GroupDataContext)
   const { incoMessage, setIncoMessage } = useContext(IncoMessageContextValue)
+  const [typingTimeout, setTypingTimeout] = useState(null);
   // console.log(incoMessage)
   // console.log('the receiver is ', receiver._id)
 
@@ -36,7 +37,7 @@ const MessageInput = ({ socket, setMessages, messages }) => {
         let newMessage = null
         let eventName = ''
 
-        if(currentGroup && currentGroup._id){
+        if (currentGroup && currentGroup._id) {
           newMessage = {
             senderId: user._id,
             groupId: currentGroup._id,
@@ -44,7 +45,7 @@ const MessageInput = ({ socket, setMessages, messages }) => {
             createdAt: Date.now()
           }
           eventName = incoMessage ? 'IncoGroupMessage' : 'groupMessage';
-        } else if(receiver && receiver._id){
+        } else if (receiver && receiver._id) {
           newMessage = {
             senderId: user._id,
             receiverId: receiver._id,
@@ -58,7 +59,7 @@ const MessageInput = ({ socket, setMessages, messages }) => {
         }
 
         // newMessage = { senderId: user._id, receiverId: receiver._id, message, createdAt: Date.now() }
-        incoMessage?setMessages((prevMessages) => [...prevMessages, newMessage]):null
+        incoMessage ? (!currentGroup && setMessages((prevMessages) => [...prevMessages, newMessage])) : null
         // socket.emit('privateMessage', {senderId: user._id, receiverId: receiver._id, message});
         // incoMessage ? socket.emit('IncoMessage', { senderId: user._id, receiverId: receiver._id, message, createdAt: Date.now() }) : socket.emit('privateMessage', { senderId: user._id, receiverId: receiver._id, message, createdAt: Date.now() })
         // eventName = incoMessage ? 'IncoMessage' : 'privateMessage';
@@ -74,7 +75,7 @@ const MessageInput = ({ socket, setMessages, messages }) => {
   }, [])
 
   useEffect(() => {
-    if(currentGroup && currentGroup._id){
+    if (currentGroup && currentGroup._id) {
       socket.emit('joinGroup', currentGroup._id)
     }
     window.addEventListener('keydown', sendMessage)
@@ -112,8 +113,8 @@ const MessageInput = ({ socket, setMessages, messages }) => {
     setMessage(resulte.data)
   }
 
-  const translateText = async()=>{
-    if(message.trim()==='') return
+  const translateText = async () => {
+    if (message.trim() === '') return
     setMessage('Translating...')
     const targetLanguage = 'English'
     const resulte = await axios.get(`${import.meta.env.VITE_BASE_URL}/ai/translate-content?message=${encodeURIComponent(message)}&targetLanguage=${encodeURIComponent(targetLanguage)}`)
@@ -121,9 +122,42 @@ const MessageInput = ({ socket, setMessages, messages }) => {
     // console.log(resulte.data.result)
   }
 
+  // const handleTyping = () => {
+  //   if (typingTimeout) clearTimeout(typingTimeout);
+  //   const payload = { senderId: user._id, receiverId: receiver?._id };
+  //   socket.emit('typing', payload);
+  //   const timeout = setTimeout(() => {}, 500); // No-op timeout to reset
+  //   setTypingTimeout(timeout);
+  // };
+
+  // const handleTyping = () => {
+  //   if (typingTimeout) clearTimeout(typingTimeout);
+    
+  //   // Only emit typing event if we have a receiver
+  //   if (receiver && receiver._id && user && user._id) {
+  //     const payload = { senderId: user._id, receiverId: receiver._id };
+  //     socket.emit('typing', payload);
+  //   } else if (currentGroup && currentGroup._id && user && user._id) {
+  //     const payload = { senderId: user._id, groupId: currentGroup._id };
+  //     socket.emit('typing', payload);
+  //   }
+    
+  //   // Set timeout to stop typing indicator after some time
+  //   const timeout = setTimeout(() => {
+  //     // This is empty but still needed for timeout tracking
+  //   }, 2000);
+  //   setTypingTimeout(timeout);
+  // };
+
+  
   return (
     <div className='bg-[#e1e4e9] text-black w-full absolute bottom-0 flex items-center'>
-      <input value={message} onChange={(e) => setMessage(e.target.value)} className='w-full bg-transparent px-5 py-4 focus:outline-none border-none' type="text" placeholder='Enter your message' autoFocus />
+      <input value={message} onChange={(e) => {
+        setMessage(e.target.value)
+        // socket.emit('typing', { senderId: user._id, receiverId: receiver._id })
+        // handleTyping();
+      }
+      } className='w-full bg-transparent px-5 py-4 focus:outline-none border-none' type="text" placeholder='Enter your message' autoFocus />
       <div onClick={(e) => modifyText(e)} className='aspect-square w-[40px] h-[40px] hover:bg-blue-600 transition-all rounded-full flex items-center justify-center'>
         <i className="text-xl ri-ai-generate-2"></i>
         {/* <button onClick={(e)=> sendMessage(e)}>Send</button> */}

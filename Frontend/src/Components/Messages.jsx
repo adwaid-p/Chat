@@ -175,7 +175,7 @@ const Messages = () => {
     fetchGroups()
   }, [])
 
-  console.log('the response from the server for groups : ', groups)
+  // console.log('the response from the server for groups : ', groups)
 
   return (
 
