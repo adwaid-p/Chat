@@ -34,10 +34,27 @@ module.exports.getGroups = async (req, res, next) => {
 module.exports.fetchGroupMessage = async (req, res, next) => {
   try {
     const { groupId } = req.query;
-    const messages = await messageModel.find({ groupId: groupId }).sort({ createdAt: 1 });
+    const messages = await messageModel
+      .find({ groupId: groupId })
+      .sort({ createdAt: 1 });
     return res.status(200).json(messages);
   } catch (error) {
     console.log("Error while fetching group messages ", error);
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+module.exports.updateGroupMembers = async (req, res, next) => {
+  try {
+    const { groupId, members } = req.body;
+    const group = await groupMessageModel.findByIdAndUpdate(
+      groupId,
+      { members: members },
+      { new: true }
+    );
+    return res.status(200).json(group);
+  } catch (error) {
+    console.log("Error while updating group members ", error);
     return res.status(500).json({ message: error.message });
   }
 };

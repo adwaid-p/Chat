@@ -8,4 +8,6 @@ router.get('/getGroups',groupController.getGroups)
 
 router.get('/fetch_message',groupController.fetchGroupMessage)
 
+router.post('/update_members',groupController.updateGroupMembers)
+
 module.exports = router

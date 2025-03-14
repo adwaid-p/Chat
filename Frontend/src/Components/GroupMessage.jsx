@@ -5,7 +5,7 @@ const GroupMessage = ({ group }) => {
 
   const { currentGroup, setCurrentGroup } = useContext(GroupDataContext)
 
-  console.log('the current group is ', currentGroup)
+  // console.log('the current group is ', currentGroup)
   return (
     <div className='w-full p-3 text-black font-semibold hover:bg-gray-200 rounded-md cursor-pointer flex items-center gap-x-2' onClick={() => setCurrentGroup(group)}>
       <img className='size-[50px] rounded-full object-cover' src={group.profilePic} alt="" />
