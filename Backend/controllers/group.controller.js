@@ -1,5 +1,6 @@
 const groupMessageModel = require("../models/groupMessage.model");
 const messageModel = require("../models/message.model");
+const cloudinary = require('../utils/Cloudinary')
 
 module.exports.createGroup = async (req, res, next) => {
   try {
@@ -56,5 +57,25 @@ module.exports.updateGroupMembers = async (req, res, next) => {
   } catch (error) {
     console.log("Error while updating group members ", error);
     return res.status(500).json({ message: error.message });
+  }
+};
+
+module.exports.updateProfilePic = async (req, res, next) => {
+  const {groupId} = req.body;
+  console.log('the groupId is :',groupId)
+  try {
+    const response = await cloudinary.uploader.upload(req.file.path, {
+      resource_type: "auto",
+    });
+    console.log('response for image upload is :',response.secure_url)
+    const group = await groupMessageModel.findByIdAndUpdate(
+      groupId,
+      { profilePic: response.secure_url },
+      { new: true }
+  );
+  console.log('the group after the image upload is :',group)
+  return res.status(201).json(group)
+  } catch (error) {
+    res.status(400).json({ message: error.message });
   }
 };

@@ -32,6 +32,32 @@ const Message = ({ message, currentUserId }) => {
     }
   }, [message.senderId]);
 
+
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  // const urlRegex = /(https?:\/\/[^\s]+|www\.[^\s]+|[^\s]+\.(com|org|net|edu|gov|io|co\.[a-z]{2}))/g;
+
+  const renderMessageContent =(text)=>{
+    if(!text) return null;
+
+    const parts = text.split(urlRegex)
+     return parts.map((part,index)=>{
+      if(urlRegex.test(part)){
+        return (
+          <a
+          key={index}
+          href={part}
+          target='_blank'
+          rel="noopener noreferrer"
+          className='text-blue-100 underline hover:text-blue-200'
+          >
+            {part}
+          </a>
+        )
+      }
+      return <span key={index}>{part}</span>
+     })
+  }
+
   return (
     <div className='flex items-start gap-2'>
       {(!isSentByCurrentUser && currentGroup) && <img className='size-[30px] rounded-full object-cover' src={sender.profilePic} alt="" />}
@@ -40,7 +66,7 @@ const Message = ({ message, currentUserId }) => {
           currentGroup && <div className='text-xs font-medium'>{sender.userName}</div>
         }
         <div className='pr-10 text-sm'>
-          {message.message}
+          {renderMessageContent(message.message)}
         </div>
         <div className={`text-[11px] ${isSentByCurrentUser ? 'text-white' : 'text-gray-400'} text-right pl-10 -mt-1`}>{istTime}</div>
       </div>

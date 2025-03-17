@@ -5,7 +5,7 @@ const jwt = require("jsonwebtoken");
 const userModel = require("../models/user.model");
 const MessageModel = require("../models/message.model");
 const blackListTokenModel = require("../models/BlackListToken.model");
-const cloudinary = require('../utils/Cloudinary')
+const cloudinary = require("../utils/Cloudinary");
 
 module.exports.registerUser = async (req, res, next) => {
   try {
@@ -176,33 +176,35 @@ module.exports.fetchLastMessage = async (req, res, next) => {
         { senderId: senderId, receiverId: receiverId },
         { senderId: receiverId, receiverId: senderId },
       ],
-    }).sort({ createdAt: -1 }).limit(1);
+    })
+      .sort({ createdAt: -1 })
+      .limit(1);
     // console.log('the last seen message is :',lastSeenMessage)
-    if(!lastSeenMessage){
-      return res.status(200).json({message : 'No message found'})
+    if (!lastSeenMessage) {
+      return res.status(200).json({ message: "No message found" });
     }
     res.status(200).json(lastSeenMessage);
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
-}
+};
 
 module.exports.updateProfilePic = async (req, res, next) => {
-  const {userId} = req.body;
-  console.log('the userId is :',userId)
+  const { userId } = req.body;
+  console.log("the userId is :", userId);
   try {
     const response = await cloudinary.uploader.upload(req.file.path, {
       resource_type: "auto",
     });
-    console.log('response for image upload is :',response.secure_url)
+    console.log("response for image upload is :", response.secure_url);
     const user = await userModel.findByIdAndUpdate(
       userId,
       { profilePic: response.secure_url },
       { new: true }
-  );
-  console.log('the user after the image upload is :',user)
+    );
+    console.log("the user after the image upload is :", user);
+    return res.status(201).json(user);
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
 };
-

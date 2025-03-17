@@ -4,6 +4,7 @@ import axios from 'axios';
 import { MessageDataContext } from '../context/MessageContext'
 import { IncoMessageContextValue } from '../context/IncoMessageContext';
 import { GroupDataContext } from '../context/GroupContext';
+import EmojiPicker from 'emoji-picker-react';
 
 const MessageInput = ({ socket, setMessages, messages }) => {
 
@@ -12,6 +13,7 @@ const MessageInput = ({ socket, setMessages, messages }) => {
   const { currentGroup, setCurrentGroup } = useContext(GroupDataContext)
   const { incoMessage, setIncoMessage } = useContext(IncoMessageContextValue)
   const [typingTimeout, setTypingTimeout] = useState(null);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   // console.log(incoMessage)
   // console.log('the receiver is ', receiver._id)
 
@@ -65,6 +67,7 @@ const MessageInput = ({ socket, setMessages, messages }) => {
         // eventName = incoMessage ? 'IncoMessage' : 'privateMessage';
         socket.emit(eventName, newMessage);
         setMessage('');
+        setShowEmojiPicker(false)
         // console.log('the message array :',messages)
       }
     }
@@ -132,7 +135,7 @@ const MessageInput = ({ socket, setMessages, messages }) => {
 
   // const handleTyping = () => {
   //   if (typingTimeout) clearTimeout(typingTimeout);
-    
+
   //   // Only emit typing event if we have a receiver
   //   if (receiver && receiver._id && user && user._id) {
   //     const payload = { senderId: user._id, receiverId: receiver._id };
@@ -141,7 +144,7 @@ const MessageInput = ({ socket, setMessages, messages }) => {
   //     const payload = { senderId: user._id, groupId: currentGroup._id };
   //     socket.emit('typing', payload);
   //   }
-    
+
   //   // Set timeout to stop typing indicator after some time
   //   const timeout = setTimeout(() => {
   //     // This is empty but still needed for timeout tracking
@@ -149,9 +152,20 @@ const MessageInput = ({ socket, setMessages, messages }) => {
   //   setTypingTimeout(timeout);
   // };
 
-  
+  const handleEmojiClick = (emojiObject) => {
+    setMessage((prevMessage) => prevMessage + emojiObject.emoji); // Append emoji to message
+    setShowEmojiPicker(false); // Optional: hide picker after selection
+  };
+
+
   return (
     <div className='bg-[#e1e4e9] text-black w-full absolute bottom-0 flex items-center'>
+      <div onClick={() => setShowEmojiPicker(!showEmojiPicker)} className='ml-3 text-xl'>
+      <i className="ri-emotion-line"></i>
+      </div>
+      <div className='ml-3 text-xl'>
+        <i className="ri-attachment-2"></i>
+      </div>
       <input value={message} onChange={(e) => {
         setMessage(e.target.value)
         // socket.emit('typing', { senderId: user._id, receiverId: receiver._id })
@@ -168,6 +182,12 @@ const MessageInput = ({ socket, setMessages, messages }) => {
       <div className='aspect-square w-[40px] h-[40px] hover:bg-blue-600 transition-all rounded-full flex items-center justify-center mr-3'>
         <i className="text-xl ri-mic-line"></i>
       </div>
+
+      {showEmojiPicker && (
+        <div className="absolute bottom-[3.8rem] left-1 z-10">
+          <EmojiPicker onEmojiClick={handleEmojiClick} />
+        </div>
+      )}
     </div>
   )
 }

@@ -173,7 +173,7 @@ const Messages = () => {
       }
     }
     fetchGroups()
-  }, [])
+}, [currentGroup])
 
   // console.log('the response from the server for groups : ', groups)
 

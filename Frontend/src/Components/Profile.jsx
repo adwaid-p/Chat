@@ -39,7 +39,7 @@ const Profile = () => {
                 },
             });
 
-            if (response.status === 200) {
+            if (response.status === 201) {
                 setProfileUpdate(!profileUpdate)
             } else {
                 console.error('Failed to update profile picture', response.data);

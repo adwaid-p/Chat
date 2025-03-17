@@ -11,6 +11,7 @@ const Information = () => {
   const [newMembers, setNewMembers] = useState([]); // Renamed to clarify these are new additions
   const [memberSearch, setMemberSearch] = useState('');
   const [loadingMembers, setLoadingMembers] = useState(false);
+  const [profileUpdate, setProfileUpdate] = useState(false)
 
   // Set group members when currentGroup changes
   useEffect(() => {
@@ -105,14 +106,51 @@ const Information = () => {
     }
   };
 
+
+  const token = localStorage.getItem('token')
+
+  const handleProfilePicChange = async(event) => {
+    const file = event.target.files[0];
+    const formData = new FormData();
+    formData.append('profilePic', file);
+    formData.append('groupId', currentGroup._id); 
+
+    try {
+        const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/groupMessage/profile_pic`, formData, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+
+        if (response.status === 201) {
+            setProfileUpdate(!profileUpdate)
+            setCurrentGroup(response.data)
+            // console.log(response.data)
+        } else {
+            console.error('Failed to update profile picture', response.data);
+        }
+    } catch (error) {
+        console.error("Error updating profile picture:", error);
+    }
+  }
+
   return (
     <div className='w-[300px] bg-white py-6 pl-6 pr-3 flex flex-col gap-3 shadow-[0px_8px_24px_rgba(149,157,165,0.2)] rounded border border-gray-300'>
       <div className='flex items-center gap-x-2 pb-1'>
-        <img
-          className='size-[60px] rounded-full aspect-square object-cover object-center'
-          src={currentGroup.profilePic}
-          alt=""
-        />
+        <div className='relative'>
+          <img
+            className='size-[60px] rounded-full aspect-square object-cover object-center'
+            src={currentGroup.profilePic}
+            alt=""
+          />
+          <input
+            type="file"
+            accept="image/*"
+            className='absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer'
+            onChange={(e) => handleProfilePicChange(e)}
+          />
+        </div>
         <h1 className='text-[20px] font-semibold'>{currentGroup.name}</h1>
       </div>
       <div className='flex items-center gap-2'>
