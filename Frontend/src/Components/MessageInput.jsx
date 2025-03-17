@@ -14,6 +14,7 @@ const MessageInput = ({ socket, setMessages, messages }) => {
   const { incoMessage, setIncoMessage } = useContext(IncoMessageContextValue)
   const [typingTimeout, setTypingTimeout] = useState(null);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [image, setImage] = useState(null)
   // console.log(incoMessage)
   // console.log('the receiver is ', receiver._id)
 
@@ -32,14 +33,36 @@ const MessageInput = ({ socket, setMessages, messages }) => {
   // const response = await 
 
   const [message, setMessage] = useState('')
-  const sendMessage = (e) => {
+
+const handleImageUpload = (e)=>{
+  setImage(e.target.files[0])
+  // console.log(image])
+}
+
+  const sendMessage = async(e) => {
     if (e.key === 'Enter') {
       e.preventDefault();
-      if (message.trim() !== '') {
+      if (message.trim() !== '' || image) {
         let newMessage = null
         let eventName = ''
+        if (image) {
+          console.log(image)
+          const formData = new FormData();
+          formData.append('image', image);
+          const uploadResponse = await axios.post(`${import.meta.env.VITE_BASE_URL}/upload-image`, formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+          })
+          newMessage = {
+            senderId: user._id,
+            receiverId: receiver?._id,
+            groupId: currentGroup?._id,
+            image: uploadResponse.data.imageUrl,
+            createdAt: Date.now()
+          }
+          eventName = currentGroup ? 'groupMessage' : 'privateMessage';
+        }
 
-        if (currentGroup && currentGroup._id) {
+        else if (currentGroup && currentGroup._id) {
           newMessage = {
             senderId: user._id,
             groupId: currentGroup._id,
@@ -67,6 +90,7 @@ const MessageInput = ({ socket, setMessages, messages }) => {
         // eventName = incoMessage ? 'IncoMessage' : 'privateMessage';
         socket.emit(eventName, newMessage);
         setMessage('');
+        setImage(null)
         setShowEmojiPicker(false)
         // console.log('the message array :',messages)
       }
@@ -84,7 +108,7 @@ const MessageInput = ({ socket, setMessages, messages }) => {
     window.addEventListener('keydown', sendMessage)
     // currentUser()
     return () => window.removeEventListener('keydown', sendMessage)
-  }, [message, receiver, currentGroup, user, incoMessage])
+  }, [message, receiver, currentGroup, user, incoMessage, image, socket])
 
   // console.log(user)
 
@@ -161,11 +185,20 @@ const MessageInput = ({ socket, setMessages, messages }) => {
   return (
     <div className='bg-[#e1e4e9] text-black w-full absolute bottom-0 flex items-center'>
       <div onClick={() => setShowEmojiPicker(!showEmojiPicker)} className='ml-3 text-xl'>
-      <i className="ri-emotion-line"></i>
+        <i className="ri-emotion-line"></i>
       </div>
-      <div className='ml-3 text-xl'>
+      <label htmlFor="upload-button" className="ml-3 text-xl cursor-pointer">
         <i className="ri-attachment-2"></i>
-      </div>
+        <input
+          type="file"
+          accept="image/*"
+          onChange={handleImageUpload}
+          style={{ display: 'none' }}
+          id="upload-button"
+        />
+      </label>
+      {/* <div className='ml-3 text-xl'>
+      </div> */}
       <input value={message} onChange={(e) => {
         setMessage(e.target.value)
         // socket.emit('typing', { senderId: user._id, receiverId: receiver._id })

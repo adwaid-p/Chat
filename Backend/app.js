@@ -16,6 +16,8 @@ const cookieParser = require("cookie-parser");
 const userModel = require("./models/user.model");
 const MessageModel = require("./models/message.model");
 const { group } = require("console");
+const upload = require("./middlewares/multer.middlewares");
+const cloudinary = require("./utils/Cloudinary");
 
 connectToDb();
 
@@ -41,6 +43,16 @@ app.use("/user", userRoutes);
 app.use("/ai", aiRoutes);
 
 app.use("/groupMessage", groupMessageRoutes);
+
+app.post("/upload-image", upload.single("image"), async (req, res, next) => {
+  try {
+    const result = await cloudinary.uploader.upload(req.file.path);
+    return res.json({ imageUrl: result.secure_url });
+  } catch (error) {
+    console.error("Error uploading to Cloudinary:", error);
+    res.status(500).json({ error: "Failed to upload image" });
+  }
+});
 
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
@@ -103,7 +115,7 @@ io.on("connection", (socket) => {
 
     socket.on(
       "privateMessage",
-      async ({ senderId, receiverId, message, createdAt }) => {
+      async ({ senderId, receiverId, message, image, createdAt }) => {
         // console.log(message)
         // console.log('the userId is ',senderId)
         // console.log('the receiverId is ',receiverId)
@@ -112,6 +124,7 @@ io.on("connection", (socket) => {
           senderId,
           receiverId,
           message,
+          image,
         });
         if (!receiver || !receiver.socketId) {
           // console.log("Receiver not found or offline", receiverId);
@@ -123,6 +136,7 @@ io.on("connection", (socket) => {
           senderId,
           receiverId,
           message,
+          image,
           createdAt,
         });
         // const newMessage = await MessageModel.create({senderId,receiverId,message})
@@ -147,17 +161,19 @@ io.on("connection", (socket) => {
     );
     socket.on(
       "groupMessage",
-      async ({ senderId, groupId, message, createdAt }) => {
+      async ({ senderId, groupId, message, image,createdAt }) => {
         const newMessage = await MessageModel.create({
           senderId,
           groupId,
           message,
+          image,
         });
         io.to(groupId).emit("groupMessage", {
           _id: newMessage._id,
           senderId,
           groupId,
           message,
+          image,
           createdAt: newMessage.createdAt,
         });
       }

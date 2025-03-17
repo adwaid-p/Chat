@@ -65,9 +65,13 @@ const Message = ({ message, currentUserId }) => {
         {
           currentGroup && <div className='text-xs font-medium'>{sender.userName}</div>
         }
-        <div className='pr-10 text-sm'>
+        {message.image? (
+          <img className="max-w-full h-auto rounded-lg my-2" src={message.image} alt="Shared Image"  />
+        ):(
+          <div className='pr-10 text-[14.4px]'>
           {renderMessageContent(message.message)}
-        </div>
+        </div>)
+        }
         <div className={`text-[11px] ${isSentByCurrentUser ? 'text-white' : 'text-gray-400'} text-right pl-10 -mt-1`}>{istTime}</div>
       </div>
       {(isSentByCurrentUser && currentGroup) && <img className='size-[30px] rounded-full object-cover' src={sender.profilePic} alt="" />}

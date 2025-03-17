@@ -50,7 +50,8 @@ const Profile = () => {
     };
 
     return (
-        <div className='absolute z-10 bottom-16 left-14 px-5 py-5 min-w-[180px] bg-[#0c1121]'>
+        <div className='absolute z-10 bottom-16 left-14 p-3 min-w-[180px] bg-[#0c1121]'>
+            <label htmlFor="upload-button" className='cursor-pointer'>
             <div className='flex gap-2 items-center'>
                 <img className='size-[40px] object-cover rounded-full' src={profile.profilePic} alt="" />
                 {profile.userName}
@@ -62,8 +63,6 @@ const Profile = () => {
                 style={{ display: 'none' }}
                 id="upload-button"
             />
-            <label htmlFor="upload-button" className='bg-blue-600 px-3 py-1 rounded cursor-pointer'>
-                Edit
             </label>
         </div>
     );
