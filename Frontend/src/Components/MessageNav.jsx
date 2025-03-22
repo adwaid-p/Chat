@@ -88,7 +88,7 @@ const MessageNav = () => {
           )}
         </div>
           {(showInfo && currentGroup) && (
-            <div className='absolute top-[4.1rem] text-red bg-blue-50'>
+            <div className='absolute top-[4.1rem] z-50 bg-blue-50'>
               <Information/>
             </div>
           )}

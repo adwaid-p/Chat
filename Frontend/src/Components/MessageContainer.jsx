@@ -22,11 +22,14 @@ const MessageContainer = () => {
   // console.log('the receicer is ',receiver)
 
   const [messages, setMessages] = useState([])
+  // const [updateMessage, setUpdateMessage] = useState(false)
+  const [user, setUser] = useState('')
   const [isTyping, setIsTyping] = useState(false) // New state for typing indicator
   const [typingTimeout, setTypingTimeout] = useState(null) // For handling typing timeout
   const messageContainerRef = useRef(null);
 
   const userId = JSON.parse(localStorage.getItem('user_id'))
+  const token = localStorage.getItem('token')
 
   const fetchPrivateMessage = async () => {
     const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/user/fetch_message`, {
@@ -85,6 +88,10 @@ const MessageContainer = () => {
         setIsTyping(false)
       })
 
+      socket.on('deleteMessage', ({ messageId }) => {
+        setMessages((prevMessages) => prevMessages.filter((msg) => msg._id !== messageId));
+      });
+
       // socket.on('typing', (data) => {
       //   if (data.senderId === receiver._id) {
       //     console.log('Setting isTyping to true');
@@ -104,6 +111,9 @@ const MessageContainer = () => {
       socket.emit('joinGroup', currentGroup._id)
       socket.on('groupMessage', (data) => {
         setMessages((prevMessages) => [...prevMessages, data])
+      })
+      socket.on('deleteMessage', ({messageId})=>{
+        setMessages((prevMessages)=> prevMessages.filter((msg)=> msg._id !== messageId))
       })
     }
     // socket.on('typing', (data) => {
@@ -195,6 +205,40 @@ const MessageContainer = () => {
     }
   }, [messages]);
 
+  const fetchUserProfile = async () => {
+    try {
+        const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/user/profile`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        setUser(response.data);
+        // console.log('The user is', user)
+        // console.log('The user is', response.data)
+    } catch (error) {
+        console.error("Error fetching profile:", error);
+    }
+}
+
+const deleteMessage = async (messageId) => {
+  try {
+    // console.log(messageId)
+    const response = await axios.delete(`${import.meta.env.VITE_BASE_URL}/delete`,{
+      params: {
+        messageId
+      }
+    })
+    console.log(response.data)
+    setMessages((prevMessages)=> prevMessages.filter((msg)=> msg._id !== messageId))
+    socket.emit('deleteMessage', {messageId, receiverId: receiver._id, groupId: currentGroup?._id})
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+useEffect(() => {
+    fetchUserProfile();
+},[userId, receiver?._id, currentGroup?._id])
 
   return (
     <div className='h-screen w-full relative'>
@@ -207,7 +251,7 @@ const MessageContainer = () => {
               messages && messages.map((msg, index) => (
                 // console.log(msg)
                 <div key={index} className={`flex w-full ${msg.senderId === userId && 'justify-end'}`}>
-                  <Message message={msg} currentUserId={userId} />
+                  <Message message={msg} currentUserId={userId} user={user} deleteMessage={deleteMessage} />
                 </div>
               ))
             }

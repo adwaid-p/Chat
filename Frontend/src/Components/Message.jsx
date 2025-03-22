@@ -2,13 +2,18 @@ import axios from 'axios';
 import React, { useContext, useEffect, useState } from 'react'
 import { GroupDataContext } from '../context/GroupContext';
 
-const Message = ({ message, currentUserId }) => {
+const Message = ({ message, currentUserId, user, deleteMessage}) => {
 
   const [sender, setSender] = useState('')
+  const [showSettings, setShowSettings] = useState(false)
   const { currentGroup } = useContext(GroupDataContext)
+  const [realMessage, setRealMessage] = useState('')
+  // const [message, setMessage] = useState(message)
 
   // console.log('the message in the message box', message.senderId)
   // console.log('The current user is : ',currentUserId)
+  // console.log('the user is ', user.language)
+  
   const isSentByCurrentUser = message.senderId === currentUserId;
   // console.log(message.createdAt)
   const date = new Date(message.createdAt);
@@ -58,11 +63,49 @@ const Message = ({ message, currentUserId }) => {
     })
   }
 
+  useEffect(() => {
+    if (message.message) {
+      setRealMessage(renderMessageContent(message.message))
+      
+    }
+  }, [message.message])
+  
+
+  const translateText = async () => {
+    if (message.message.trim() === '') return
+    setShowSettings(false)
+    setRealMessage('Translating...')
+    const targetLanguage = user.language
+    const resulte = await axios.get(`${import.meta.env.VITE_BASE_URL}/ai/translate-content?message=${encodeURIComponent(message.message)}&targetLanguage=${encodeURIComponent(targetLanguage)}`)
+    setRealMessage(resulte.data.result)
+    // console.log(resulte.data.result)
+  }
+
+  const handleDelete = async () => {
+    // if (message.message.trim() === '') return
+    setShowSettings(false)
+    setRealMessage('Deleting...')
+    deleteMessage(message._id)
+  }
+
   return (
-    <div className='flex items-start gap-2'>
+    <div className='flex items-start gap-2 relative'>
       {
-        (!isSentByCurrentUser && currentGroup) ? <img className='size-[30px] rounded-full object-cover' src={sender.profilePic} alt="" />
-          : <h1 className='text-lg text-black -mr-2 opacity-0 hover:opacity-100 cursor-pointer self-end'><i className="ri-more-2-line"></i></h1>
+        (!isSentByCurrentUser && currentGroup) && <img className='size-[30px] rounded-full object-cover' src={sender.profilePic} alt="" />
+      }
+      {
+        isSentByCurrentUser &&
+        <div className='relative'>
+          <h1 onClick={() => setShowSettings(!showSettings)} className='text-lg text-black -mr-2 opacity-0 hover:opacity-100 cursor-pointer self-end'><i className="ri-more-2-line"></i></h1>
+          {
+            showSettings &&
+            <div className={`text-black bg-white text-[14px] flex flex-col gap-1 border border-gray-300 rounded-md absolute z-10 top-8 right-0 px-4 py-2`}>
+              <h1 onClick={translateText}  className='flex gap-2 items-center cursor-pointer'><i className="ri-translate-2"></i> Translate</h1>
+              <h1 onClick={handleDelete} className='flex gap-2 items-center cursor-pointer'><i className="ri-delete-bin-line"></i>Delete</h1>
+              <h1 className='flex gap-2 items-center cursor-pointer'><i className="ri-pencil-line"></i>Edit</h1>
+            </div>
+          }
+        </div>
       }
       <div className={`inline-block w-fit max-w-[250px] md:max-w-[450px] px-5 py-[4px] pt-2 break-words ${isSentByCurrentUser ? 'bg-blue-600 rounded-l-xl rounded-br-xl' : 'bg-[#141b28] rounded-r-xl rounded-bl-xl'}`}>
         {
@@ -72,22 +115,30 @@ const Message = ({ message, currentUserId }) => {
           <img className="max-w-full h-auto rounded-lg my-2" src={message.image} alt="Shared Image" />
         ) : (
           <div className='pr-10 text-[14.4px]'>
-            {renderMessageContent(message.message)}
+            {
+              // renderMessageContent(message.message)
+             realMessage
+            }
           </div>)
         }
         <div className={`text-[11px] ${isSentByCurrentUser ? 'text-white' : 'text-gray-400'} text-right pl-10 -mt-1`}>{istTime}</div>
       </div>
       {
-        (isSentByCurrentUser && currentGroup) ? <img className='size-[30px] rounded-full object-cover' src={sender.profilePic} alt="" />
-          :
-          <div className='relative'>
-            <h1 className='text-lg text-black -ml-2 opacity-0 hover:opacity-100 cursor-pointer self-end'><i className="ri-more-2-line"></i></h1>
-            <div className='text-black bg-white text-[14px] flex flex-col gap-1 border border-gray-300 rounded-md absolute top-8 left-0 p-2'>
-              <h1 className='flex gap-1 items-center'><i className="ri-translate-2"></i> Translate</h1>
-              <h1 className='flex gap-1 items-center'><i className="ri-delete-bin-line"></i>Delete</h1>
-              <h1 className='flex gap-1 items-center'><i className="ri-pencil-line"></i>Edit</h1>
+        (isSentByCurrentUser && currentGroup) && <img className='size-[30px] rounded-full object-cover' src={sender.profilePic} alt="" />
+      }
+      {
+        !isSentByCurrentUser &&
+        <div className='relative'>
+          <h1 onClick={() => setShowSettings(!showSettings)} className='text-lg text-black -ml-2 opacity-0 hover:opacity-100 cursor-pointer self-end'><i className="ri-more-2-line"></i></h1>
+          {
+            showSettings &&
+            <div className={`text-black bg-white text-[14px] flex flex-col gap-1 border border-gray-300 rounded-md absolute z-10 top-8 left-0 px-4 py-2`}>
+              <h1 onClick={translateText} className='flex gap-2 items-center cursor-pointer'><i className="ri-translate-2"></i> Translate</h1>
+              <h1 onClick={handleDelete} className='flex gap-2 items-center cursor-pointer'><i className="ri-delete-bin-line"></i>Delete</h1>
+              <h1 className='flex gap-2 items-center cursor-pointer'><i className="ri-pencil-line"></i>Edit</h1>
             </div>
-          </div>
+          }
+        </div>
       }
     </div>
   )

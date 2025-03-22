@@ -184,7 +184,7 @@ const handleImageUpload = (e)=>{
 
   return (
     <div className='bg-[#e1e4e9] text-black w-full absolute bottom-0 flex items-center'>
-      <div onClick={() => setShowEmojiPicker(!showEmojiPicker)} className='ml-3 text-xl'>
+      <div onClick={() => setShowEmojiPicker(!showEmojiPicker)} className='ml-3 text-xl cursor-pointer'>
         <i className="ri-emotion-line"></i>
       </div>
       <label htmlFor="upload-button" className="ml-3 text-xl cursor-pointer">
@@ -205,14 +205,14 @@ const handleImageUpload = (e)=>{
         // handleTyping();
       }
       } className='w-full bg-transparent px-5 py-4 focus:outline-none border-none' type="text" placeholder='Enter your message' autoFocus />
-      <div onClick={(e) => modifyText(e)} className='aspect-square w-[40px] h-[40px] hover:bg-blue-600 transition-all rounded-full flex items-center justify-center'>
+      <div onClick={(e) => modifyText(e)} className='aspect-square w-[40px] h-[40px] hover:bg-[#141b28] hover:text-white transition-all rounded-full flex items-center justify-center cursor-pointer'>
         <i className="text-xl ri-ai-generate-2"></i>
         {/* <button onClick={(e)=> sendMessage(e)}>Send</button> */}
       </div>
-      <div onClick={(e) => { translateText(e) }} className='aspect-square w-[40px] h-[40px] hover:bg-blue-600 transition-all rounded-full flex items-center justify-center mr-3'>
+      <div onClick={(e) => { translateText(e) }} className='aspect-square w-[40px] h-[40px] hover:bg-[#141b28] hover:text-white transition-all rounded-full flex items-center justify-center mr-3 cursor-pointer'>
         <i className="text-xl ri-translate-2"></i>
       </div>
-      <div className='aspect-square w-[40px] h-[40px] hover:bg-blue-600 transition-all rounded-full flex items-center justify-center mr-3'>
+      <div className='aspect-square w-[40px] h-[40px] hover:bg-[#141b28] hover:text-white transition-all rounded-full flex items-center justify-center mr-3 cursor-pointer'>
         <i className="text-xl ri-mic-line"></i>
       </div>
 

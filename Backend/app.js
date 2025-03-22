@@ -54,6 +54,22 @@ app.post("/upload-image", upload.single("image"), async (req, res, next) => {
   }
 });
 
+app.delete("/delete", async (req, res, next) => {
+  try {
+    console.log("entered");
+    const { messageId } = req.query;
+    console.log("the messageId:", messageId);
+    const deleteMessage = await MessageModel.findByIdAndDelete(messageId);
+    if (!deleteMessage) {
+      return res.status(404).json({ message: "Message not found" });
+    }
+    // console.log(response.data);
+    res.status(200).json({ message: "Message deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
@@ -133,6 +149,7 @@ io.on("connection", (socket) => {
         // io.emit('receiveMessage',message)
         // io.to(receiver.socketId).emit("receiveMessage", {
         io.emit("receiveMessage", {
+          _id: newMessage._id,
           senderId,
           receiverId,
           message,
@@ -161,7 +178,7 @@ io.on("connection", (socket) => {
     );
     socket.on(
       "groupMessage",
-      async ({ senderId, groupId, message, image,createdAt }) => {
+      async ({ senderId, groupId, message, image, createdAt }) => {
         const newMessage = await MessageModel.create({
           senderId,
           groupId,
@@ -193,6 +210,19 @@ io.on("connection", (socket) => {
         });
       }
     );
+
+    socket.on("deleteMessage", async ({ messageId, receiverId, groupId }) => {
+      try {
+        const receiver = await userModel.findById(receiverId);
+        if (receiverId) {
+          io.to(receiver.socketId).emit("deleteMessage", { messageId });
+        } else if (groupId) {
+          io.to(groupId).emit("deleteMessage", { messageId });
+        }
+      } catch (error) {
+        console.log("Error in deleteMessage", error);
+      }
+    });
     socket.on("joinGroup", (groupId) => {
       // console.log(`user joined group : ${groupId}`);
       socket.join(groupId);
