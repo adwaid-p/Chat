@@ -1,4 +1,4 @@
-import React, { act, useCallback, useContext, useEffect, useState } from 'react'
+import React, { act, useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { UserDataContext } from '../context/UserContext';
 import axios from 'axios';
 import { MessageDataContext } from '../context/MessageContext'
@@ -15,6 +15,11 @@ const MessageInput = ({ socket, setMessages, messages }) => {
   const [typingTimeout, setTypingTimeout] = useState(null);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [image, setImage] = useState(null)
+
+  const [audioBlob, setAudioBlob] = useState(null)
+  const [isRecording, setIsRecording] = useState(false)
+  const mediaRecorderRef = useRef(null);
+  const audioChunksRef = useRef([]);
   // console.log(incoMessage)
   // console.log('the receiver is ', receiver._id)
 
@@ -34,12 +39,68 @@ const MessageInput = ({ socket, setMessages, messages }) => {
 
   const [message, setMessage] = useState('')
 
-const handleImageUpload = (e)=>{
-  setImage(e.target.files[0])
-  // console.log(image])
-}
+  const handleImageUpload = (e) => {
+    setImage(e.target.files[0])
+    // console.log(image])
+  }
 
-  const sendMessage = async(e) => {
+
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      mediaRecorderRef.current = new MediaRecorder(stream)
+      audioChunksRef.current = []
+      mediaRecorderRef.current.ondataavailable = (event) => {
+        audioChunksRef.current.push(event.data)
+      }
+      mediaRecorderRef.current.onstop = () => {
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' })
+        setAudioBlob(audioBlob)
+        stream.getTracks().forEach((track) => track.stop());
+      }
+      mediaRecorderRef.current.start()
+      setIsRecording(true)
+    } catch (error) {
+      console.log("Error Starting recording :", error)
+    }
+  }
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop()
+      isRecording(false)
+    }
+  }
+
+
+  const sendAudioMessage = async () => {
+    if (!audioBlob) return;
+
+    const formData = new FormData();
+    formData.append('audio', audioBlob, 'recording.webm');
+    try {
+      const uploadResponse = await axios.post(`${import.meta.env.VITE_BASE_URL}/upload-audio`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+
+      const newMessage = {
+        senderId: user._id,
+        receiverId: receiver?._id,
+        groupId: currentGroup?._id,
+        audio: uploadResponse.data.audioUrl,
+        createdAt: Date.now(),
+      };
+
+      const eventName = currentGroup ? 'groupMessage' : 'privateMessage';
+      socket.emit(eventName, newMessage);
+      setAudioBlob(null); // Clear audio after sending
+      setIsRecording(false);
+    } catch (error) {
+      console.error('Error sending audio:', error);
+    }
+  };
+
+  const sendMessage = async (e) => {
     if (e.key === 'Enter') {
       e.preventDefault();
       if (message.trim() !== '' || image) {
@@ -60,9 +121,7 @@ const handleImageUpload = (e)=>{
             createdAt: Date.now()
           }
           eventName = currentGroup ? 'groupMessage' : 'privateMessage';
-        }
-
-        else if (currentGroup && currentGroup._id) {
+        } else if (currentGroup && currentGroup._id) {
           newMessage = {
             senderId: user._id,
             groupId: currentGroup._id,
@@ -212,9 +271,22 @@ const handleImageUpload = (e)=>{
       <div onClick={(e) => { translateText(e) }} className='aspect-square w-[40px] h-[40px] hover:bg-[#141b28] hover:text-white transition-all rounded-full flex items-center justify-center mr-3 cursor-pointer'>
         <i className="text-xl ri-translate-2"></i>
       </div>
-      <div className='aspect-square w-[40px] h-[40px] hover:bg-[#141b28] hover:text-white transition-all rounded-full flex items-center justify-center mr-3 cursor-pointer'>
-        <i className="text-xl ri-mic-line"></i>
+      <div
+        onClick={isRecording ? stopRecording : startRecording}
+        className="aspect-square w-[40px] h-[40px] hover:bg-[#141b28] hover:text-white transition-all rounded-full flex items-center justify-center mr-3 cursor-pointer"
+      >
+        <i className={`text-xl ${isRecording ? 'ri-stop-circle-line' : 'ri-mic-line'}`}></i>
       </div>
+      {
+        audioBlob && (
+          <div
+            onClick={sendAudioMessage}
+            className="aspect-square w-[40px] h-[40px] text-black hover:bg-blue-600 transition-all rounded-full flex items-center justify-center mr-3 cursor-pointer"
+          >
+            <i className="text-2xl ri-send-plane-2-line"></i>
+          </div>
+        )
+      }
 
       {showEmojiPicker && (
         <div className="absolute bottom-[3.8rem] left-1 z-10">

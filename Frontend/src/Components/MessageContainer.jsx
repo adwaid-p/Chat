@@ -81,7 +81,7 @@ const MessageContainer = () => {
     if (receiver && receiver._id) {
       socket.on('receiveMessage', (data) => {
         // console.log('entered the receive message')
-        console.log('the message is from the frontend', data)
+        // console.log('the message is from the frontend', data)
         // if((data.receiverId === userId && data.senderId === receiver._id) || (data.senderId === userId && data.receiverId === receiver._id)){
         setMessages((prevMessages) => [...prevMessages, data])
         // }

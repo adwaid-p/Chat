@@ -32,6 +32,6 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-console.log('Uploads directory:', uploadDir);
+// console.log('Uploads directory:', uploadDir);
 
 module.exports = upload;

@@ -54,11 +54,35 @@ app.post("/upload-image", upload.single("image"), async (req, res, next) => {
   }
 });
 
+
+app.post("/upload-audio", upload.single("audio"), async (req, res, next) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: "No audio file provided." });
+    }
+    // Uploading audio requires specifying the resource_type
+    const result = await cloudinary.uploader.upload(req.file.path, {
+      resource_type: "video", // Cloudinary treats audio/video similarly for storage/transformation
+      // You might add format conversion options if needed, e.g., format: 'mp3'
+    });
+    console.log("Cloudinary Audio Upload Result:", result);
+    return res.json({ audioUrl: result.secure_url });
+  } catch (error) {
+    console.error("Error uploading audio to Cloudinary:", error);
+    // Add more detailed error logging if needed
+    if (error.http_code) {
+      console.error("Cloudinary API Error:", error.message);
+    }
+    res.status(500).json({ error: "Failed to upload audio" });
+  }
+});
+
+
 app.delete("/delete", async (req, res, next) => {
   try {
-    console.log("entered");
+    // console.log("entered");
     const { messageId } = req.query;
-    console.log("the messageId:", messageId);
+    // console.log("the messageId:", messageId);
     const deleteMessage = await MessageModel.findByIdAndDelete(messageId);
     if (!deleteMessage) {
       return res.status(404).json({ message: "Message not found" });
@@ -131,7 +155,7 @@ io.on("connection", (socket) => {
 
     socket.on(
       "privateMessage",
-      async ({ senderId, receiverId, message, image, createdAt }) => {
+      async ({ senderId, receiverId, message, image, audio,createdAt }) => {
         // console.log(message)
         // console.log('the userId is ',senderId)
         // console.log('the receiverId is ',receiverId)
@@ -141,9 +165,10 @@ io.on("connection", (socket) => {
           receiverId,
           message,
           image,
+          audio,
         });
         if (!receiver || !receiver.socketId) {
-          // console.log("Receiver not found or offline", receiverId);
+          console.log("Receiver not found or offline", receiverId);
         }
         // console.log('The receiver is socket id is ',receiver.socketId)
         // io.emit('receiveMessage',message)
@@ -154,6 +179,7 @@ io.on("connection", (socket) => {
           receiverId,
           message,
           image,
+          audio: audio,
           createdAt,
         });
         // const newMessage = await MessageModel.create({senderId,receiverId,message})
@@ -178,7 +204,7 @@ io.on("connection", (socket) => {
     );
     socket.on(
       "groupMessage",
-      async ({ senderId, groupId, message, image, createdAt }) => {
+      async ({ senderId, groupId, message, image, audio,createdAt }) => {
         const newMessage = await MessageModel.create({
           senderId,
           groupId,
@@ -191,6 +217,7 @@ io.on("connection", (socket) => {
           groupId,
           message,
           image,
+          audio: audio,
           createdAt: newMessage.createdAt,
         });
       }
