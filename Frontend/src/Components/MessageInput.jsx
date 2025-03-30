@@ -201,8 +201,9 @@ const MessageInput = ({ socket, setMessages, messages }) => {
 
   const translateText = async () => {
     if (message.trim() === '') return
+    // console.log('the receiver language is ', receiver.language)
     setMessage('Translating...')
-    const targetLanguage = 'English'
+    const targetLanguage = receiver.language
     const resulte = await axios.get(`${import.meta.env.VITE_BASE_URL}/ai/translate-content?message=${encodeURIComponent(message)}&targetLanguage=${encodeURIComponent(targetLanguage)}`)
     setMessage(resulte.data.result)
     // console.log(resulte.data.result)

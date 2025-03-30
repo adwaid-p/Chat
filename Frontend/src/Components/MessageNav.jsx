@@ -105,9 +105,9 @@ const MessageNav = () => {
         <div onClick={() => setCallState(!callState)} className={`aspect-square w-[40px] h-[40px] hover:bg-gray-300 transition-all rounded-full flex items-center justify-center`}>
           <i className="text-2xl ri-video-on-fill"></i>
         </div>
-        <div onClick={() => console.log('audio call')} className={`aspect-square w-[40px] h-[40px] hover:bg-gray-300 transition-all rounded-full flex items-center justify-center`}>
+        {/* <div onClick={() => console.log('audio call')} className={`aspect-square w-[40px] h-[40px] hover:bg-gray-300 transition-all rounded-full flex items-center justify-center`}>
           <i className="text-2xl ri-phone-fill"></i>
-        </div>
+        </div> */}
         <div onClick={() => setIncoMessage(!incoMessage)} className={`${incoMessage && 'bg-blue-700'} aspect-square w-[40px] h-[40px] hover:bg-gray-300 transition-all rounded-full flex items-center justify-center`}>
           <i className="text-2xl ri-chat-private-line"></i>
         </div>

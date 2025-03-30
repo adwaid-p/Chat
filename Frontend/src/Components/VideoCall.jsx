@@ -66,7 +66,7 @@ const VideoCall = () => {
             console.log('Cannot start call: Missing stream, receiver, or peer');
             return
         }
-
+        
         const call = peerRef.current.call(receiver._id, stream)
         call.on('stream', remoteVideo => {
             if (receiveVideoRef.current) {

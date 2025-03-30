@@ -9,6 +9,7 @@ import { CallDataContext } from '../context/CallContext'
 import VideoCall from './VideoCall'
 import { useSocket } from '../context/SocketContext';
 import { GroupDataContext } from '../context/GroupContext'
+import { IncoMessageContextValue } from '../context/IncoMessageContext'
 
 // const socket = io('http://localhost:3000')
 
@@ -17,6 +18,7 @@ const MessageContainer = () => {
   const { receiver, setReceiver } = useContext(MessageDataContext)
   const { currentGroup, setCurrentGroup } = useContext(GroupDataContext)
   const { callState, setCallState } = useContext(CallDataContext)
+    const { incoMessage, setIncoMessage } = useContext(IncoMessageContextValue)
   const socket = useSocket();
   // console.log('the call state is', callState)
   // console.log('the receicer is ',receiver)
@@ -81,7 +83,8 @@ const MessageContainer = () => {
     if (receiver && receiver._id) {
       socket.on('receiveMessage', (data) => {
         // console.log('entered the receive message')
-        // console.log('the message is from the frontend', data)
+        console.log('the message is from the frontend', data.inco)
+        setIncoMessage(data.inco)
         // if((data.receiverId === userId && data.senderId === receiver._id) || (data.senderId === userId && data.receiverId === receiver._id)){
         setMessages((prevMessages) => [...prevMessages, data])
         // }

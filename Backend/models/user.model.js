@@ -35,6 +35,10 @@ const userSchema = new mongoose.Schema({
         type : Date,
         default : Date.now
     },
+    language: {
+        type: String,
+        required: true
+    },
     // lastSeenMessage : {
     //     type : String,
     //     default : 'No message'

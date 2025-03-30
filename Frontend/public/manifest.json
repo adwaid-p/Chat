@@ -1,0 +1,20 @@
+{
+    "short_name": "ChatApp",
+    "name": "Real-Time Chat App",
+    "icons": [
+      {
+        "src": "/icon-192x192.png",
+        "sizes": "192x192",
+        "type": "image/png"
+      },
+      {
+        "src": "/icon-512x512.png",
+        "sizes": "512x512",
+        "type": "image/png"
+      }
+    ],
+    "start_url": "/",
+    "display": "standalone",
+    "theme_color": "#141b28",
+    "background_color": "#e1e4e9"
+  }

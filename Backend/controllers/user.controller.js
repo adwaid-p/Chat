@@ -14,7 +14,7 @@ module.exports.registerUser = async (req, res, next) => {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { userName, email, password } = req.body;
+    const { userName, email, password, language } = req.body;
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -27,6 +27,7 @@ module.exports.registerUser = async (req, res, next) => {
       userName,
       email,
       password: hashedPassword,
+      language: language
     });
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {

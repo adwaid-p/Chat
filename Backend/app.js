@@ -167,6 +167,7 @@ io.on("connection", (socket) => {
           image,
           audio,
         });
+        console.log(newMessage)
         if (!receiver || !receiver.socketId) {
           console.log("Receiver not found or offline", receiverId);
         }
@@ -191,14 +192,16 @@ io.on("connection", (socket) => {
       "IncoMessage",
       async ({ senderId, receiverId, message, createdAt }) => {
         const receiver = await userModel.findById(receiverId);
+        // console.log(receiver);
         if (!receiver || !receiver.socketId) {
           console.log("Receiver not found or offline", receiverId);
         }
-        console.log("the inco message is:", receiver.socketId);
+        // console.log("the inco message is:", receiver.socketId);
         io.to(receiver.socketId).emit("receiveMessage", {
           senderId,
           message,
           createdAt,
+          inco: true,
         });
       }
     );
