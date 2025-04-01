@@ -30,9 +30,10 @@ module.exports.registerUser = async (req, res, next) => {
       language: language
     });
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "24h",
-    });
+    // const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+    //   expiresIn: "24h",
+    // });
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
 
     res.status(201).json({ token, user });
   } catch (error) {
@@ -61,9 +62,10 @@ module.exports.loginUser = async (req, res, next) => {
       return res.status(401).json({ message: "Invalid email or password" });
     }
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "24h",
-    });
+    // const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+    //   expiresIn: "24h",
+    // });
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
 
     res.cookie("token", token);
 

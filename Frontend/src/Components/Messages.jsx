@@ -179,10 +179,10 @@ const Messages = () => {
 
   return (
 
-    <div className='h-screen md:relative w-full p-5 flex flex-col gap-5'>
+    <div className='h-screen md:relative w-[100vw] sm:w-full md:w-full p-5 flex flex-col gap-5'>
       {/* <h1 className='text-3xl font-semibold'>Chats</h1> */}
       <div>
-        <input value={search} onChange={(e) => setSearch(e.target.value)} className='w-full bg-[#e1e4e9] text-black p-2 px-5 rounded-3xl focus:outline-gray-500 border-none relative placeholder:text-gray-500' type="text" placeholder='Search' />
+        <input value={search} onChange={(e) => setSearch(e.target.value)} className='w-[85%] sm:full md:w-full bg-[#e1e4e9] text-black p-2 px-5 rounded-3xl focus:outline-gray-500 border-none relative placeholder:text-gray-500' type="text" placeholder='Search' />
         {search &&
           <div className='w-[250px]  rounded-lg mt-3 border bg-[#ffffff] text-black p-5 fixed flex flex-col gap-5 shadow-[0px_8px_24px_rgba(149,157,165,0.2)]'>
             {
