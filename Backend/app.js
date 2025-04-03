@@ -31,20 +31,35 @@ connectToDb();
 //   },
 // });
 
+// app.use(cors({
+//   origin: "https://chatapp-roan-tau.vercel.app",
+//   methods: ["GET", "POST", "PUT", "DELETE"],
+//   credentials: true
+// }));
+
+// const io = new Server(server, {
+//   cors: {
+//     origin: "https://chatapp-roan-tau.vercel.app",
+//     methods: ["GET", "POST"],
+//     credentials: true
+//   },
+// });
+
 app.use(cors({
   origin: "https://chatapp-roan-tau.vercel.app",
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  credentials: true
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  credentials: true,
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 const io = new Server(server, {
   cors: {
     origin: "https://chatapp-roan-tau.vercel.app",
-    methods: ["GET", "POST"],
-    credentials: true
+    methods: ["GET", "POST", "OPTIONS"],
+    credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization']
   },
 });
-
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
