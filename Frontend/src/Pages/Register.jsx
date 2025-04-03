@@ -33,7 +33,7 @@ const Register = () => {
             // console.log(user)
             localStorage.setItem('token', data.token)
             localStorage.setItem('user_id', JSON.stringify(data.user._id))
-            navigate('/messages')
+            navigate('/')
         }
 
         setUserName('')

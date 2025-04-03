@@ -15,7 +15,7 @@ function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/messages" element={
+        <Route path="/" element={
           <UserProtectWrapper>
             <MainPage />
           </UserProtectWrapper>
