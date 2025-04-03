@@ -244,7 +244,7 @@ const MessageInput = ({ socket, setMessages, messages }) => {
 
   return (
     <div className='bg-[#e1e4e9] text-black w-full absolute bottom-0 flex items-center'>
-      <div onClick={() => setShowEmojiPicker(!showEmojiPicker)} className='ml-3 text-xl cursor-pointer'>
+      <div onClick={() => setShowEmojiPicker(!showEmojiPicker)} className='ml-2 md:ml-3 text-xl cursor-pointer'>
         <i className="ri-emotion-line"></i>
       </div>
       <label htmlFor="upload-button" className="ml-3 text-xl cursor-pointer">
@@ -264,7 +264,7 @@ const MessageInput = ({ socket, setMessages, messages }) => {
         // socket.emit('typing', { senderId: user._id, receiverId: receiver._id })
         // handleTyping();
       }
-      } className='w-full bg-transparent px-5 py-4 focus:outline-none border-none' type="text" placeholder='Enter your message' autoFocus />
+      } className='w-full bg-transparent px-3 md:px-5 py-4 focus:outline-none border-none' type="text" placeholder='Enter your message' autoFocus />
       <div onClick={(e) => modifyText(e)} className='aspect-square w-[40px] h-[40px] hover:bg-[#141b28] hover:text-white transition-all rounded-full flex items-center justify-center cursor-pointer'>
         <i className="text-xl ri-ai-generate-2"></i>
         {/* <button onClick={(e)=> sendMessage(e)}>Send</button> */}
@@ -290,7 +290,7 @@ const MessageInput = ({ socket, setMessages, messages }) => {
       }
 
       {showEmojiPicker && (
-        <div className="absolute bottom-[3.8rem] left-1 z-10">
+        <div className="absolute bottom-[3.8rem] left-1 z-10 ">
           <EmojiPicker onEmojiClick={handleEmojiClick} />
         </div>
       )}
