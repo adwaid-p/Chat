@@ -8,7 +8,12 @@ export const SocketProvider = ({ children }) => {
   const userId = JSON.parse(localStorage.getItem('user_id'));
 
   useEffect(() => {
-    const newSocket = io('http://localhost:3000', {
+    // const newSocket = io('http://localhost:3000', {
+    //   reconnection: true,
+    //   reconnectionAttempts: 5,
+    //   reconnectionDelay: 1000,
+    // });
+    const newSocket = io('https://chatapp-backend-sd9j.onrender.com', {
       reconnection: true,
       reconnectionAttempts: 5,
       reconnectionDelay: 1000,
