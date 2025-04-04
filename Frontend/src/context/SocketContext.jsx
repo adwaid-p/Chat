@@ -8,10 +8,12 @@ export const SocketProvider = ({ children }) => {
   const userId = JSON.parse(localStorage.getItem('user_id'));
 
   useEffect(() => {
-    const newSocket = io('http://localhost:3000', {
+    const newSocket = io('https://chatapp-backend-sd9j.onrender.com', {
       reconnection: true,
       reconnectionAttempts: 5,
       reconnectionDelay: 1000,
+      withCredentials: true,
+      transports: ['websocket', 'polling']
     });
 
     // Initialize socket connection
@@ -20,6 +22,10 @@ export const SocketProvider = ({ children }) => {
       if (userId) {
         newSocket.emit('join', userId);
       }
+    });
+
+    newSocket.on('connect_error', (error) => {
+      console.error('Socket connection error:', error);
     });
 
     setSocket(newSocket);

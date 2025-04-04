@@ -58,7 +58,8 @@ const io = new Server(server, {
     origin: "https://chatapp-roan-tau.vercel.app",
     methods: ["GET", "POST", "OPTIONS"],
     credentials: true,
-    allowedHeaders: ['Content-Type', 'Authorization']
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    transports: ['websocket', 'polling']
   },
 });
 
@@ -128,6 +129,10 @@ app.delete("/delete", async (req, res, next) => {
 
 server.listen(PORT, '0.0.0.0' ,() => {
   console.log(`Server running on port ${PORT}`);
+});
+
+io.on("connect_error", (err) => {
+  console.log(`Connect error due to ${err.message}`);
 });
 
 io.on("connection", (socket) => {
