@@ -6,7 +6,7 @@ import SideBar from "../Components/SideBar"
 
 const MainPage = () => {
   return (
-    <div className="h-[100dvh] bg-[#F5F5F5] relative text-white">
+    <div className="h-screen bg-[#F5F5F5] relative text-white">
       {/* <div className="fixed top-0 left-0 w-full h-full">
         <BackgroundLine />
       </div> */}
