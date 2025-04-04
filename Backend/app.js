@@ -146,6 +146,7 @@ io.on("connection", (socket) => {
       );
       // console.log("user data at time of online", user);
       if (user) {
+        socket.join(user._id.toString());
         io.emit("Status", `${user.userName} is online`);
         io.emit("userStatus", {
           userId: user._id,

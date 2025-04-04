@@ -9,11 +9,20 @@ export const SocketProvider = ({ children }) => {
 
   useEffect(() => {
     const newSocket = io('https://chatapp-backend-sd9j.onrender.com', {
+      // reconnection: true,
+      // reconnectionAttempts: 5,
+      // reconnectionDelay: 1000,
+      // withCredentials: true,
+      // transports: ['websocket', 'polling']
       reconnection: true,
-      reconnectionAttempts: 5,
+      reconnectionAttempts: Infinity,
       reconnectionDelay: 1000,
-      withCredentials: true,
-      transports: ['websocket', 'polling']
+      transports: ['websocket', 'polling'],
+      secure: true,
+      rejectUnauthorized: false,
+      auth: {
+        userId: userId
+      }
     });
 
     // Initialize socket connection
@@ -26,6 +35,10 @@ export const SocketProvider = ({ children }) => {
 
     newSocket.on('connect_error', (error) => {
       console.error('Socket connection error:', error);
+    });
+
+    newSocket.on('disconnect', () => {
+      console.log('Socket disconnected');
     });
 
     setSocket(newSocket);
