@@ -279,9 +279,9 @@ const MessageContainer = () => {
   }, [userId, receiver?._id, currentGroup?._id])
 
   return (
-    <div className='h-screen w-full relative'>
+    <div className='h-full w-full relative'>
       <MessageNav />
-      <div className='h-[82.5vh]'>
+      <div className='h-[82.5svh]'>
         {callState ?
           <VideoCall />
           : <div ref={messageContainerRef} className='h-full px-3 py-5 overflow-y-auto flex flex-col gap-5'>

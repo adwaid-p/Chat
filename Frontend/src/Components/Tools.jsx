@@ -29,7 +29,7 @@ const Tools = ({ showSideWindow, setShowSideWindow }) => {
   }, [token])
 
   return (
-    <div className='h-screen md:w-[50px] flex flex-col gap-y-2 items-center justify-between md:justify-end py-5 px-1 md:px-3 border-r border-gray-300 relative'>
+    <div className='h-full md:w-[50px] flex flex-col gap-y-2 items-center justify-between md:justify-end py-5 px-1 md:px-3 border-r border-gray-300 relative'>
       <div onClick={() => setShowSideWindow(!showSideWindow)} className='aspect-square w-[40px] h-[40px] hover:bg-gray-300 transition-all rounded-full md:hidden flex items-center justify-center'>
         < i className="text-black text-2xl ri-side-bar-line"></i>
       </div>
