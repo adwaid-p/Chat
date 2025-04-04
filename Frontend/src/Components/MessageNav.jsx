@@ -102,9 +102,11 @@ const MessageNav = () => {
 
 
       <div className='flex gap-1 items-center justify-center'>
-        <div onClick={() => setCallState(!callState)} className={`aspect-square w-[40px] h-[40px] hover:bg-gray-300 transition-all rounded-full flex items-center justify-center`}>
+        {
+        !currentGroup &&  <div onClick={() => setCallState(!callState)} className={`aspect-square w-[40px] h-[40px] hover:bg-gray-300 transition-all rounded-full flex items-center justify-center`}>
           <i className="text-2xl ri-video-on-fill"></i>
         </div>
+        }
         {/* <div onClick={() => console.log('audio call')} className={`aspect-square w-[40px] h-[40px] hover:bg-gray-300 transition-all rounded-full flex items-center justify-center`}>
           <i className="text-2xl ri-phone-fill"></i>
         </div> */}

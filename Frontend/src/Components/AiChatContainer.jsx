@@ -51,9 +51,9 @@ const AiChatContainer = () => {
     return (
         <div className='absolute z-10 bottom-0 left-[50px] min-w-[325px] h-[90.8vh] bg-[#fcfcfc]'>
             <div className='relative h-full w-full'>
-                <div className='bg-[#172032] flex items-center justify-start gap-2 text-lg border-t border-gray-800 py-4 px-3'>
-                    <img className='aspect-square w-[40px] h-[40px] rounded-full object-cover object-center' src="https://i.pinimg.com/736x/80/55/e6/8055e6cc671a7010711acadd6440e893.jpg" alt="" />
-                    <div className='text-white'>Tars</div>
+                <div className='bg-[#172032] flex items-center justify-start gap-2  border-t border-gray-800 py-3 px-5'>
+                    <img className='aspect-square w-[35px] h-[35px] rounded-full object-cover object-center' src="https://i.pinimg.com/736x/80/55/e6/8055e6cc671a7010711acadd6440e893.jpg" alt="" />
+                    <div className='text-white font-normal'>Tars</div>
                 </div>
                 <div ref={messageContainerRef} className='h-[72.3vh] flex flex-col items-end gap-3 overflow-y-auto py-5 px-3'>
                     {
