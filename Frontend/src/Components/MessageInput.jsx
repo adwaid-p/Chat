@@ -126,7 +126,8 @@ const MessageInput = ({ socket, setMessages, messages }) => {
             senderId: user._id,
             groupId: currentGroup._id,
             message,
-            createdAt: Date.now()
+            createdAt: Date.now(),
+            inco: incoMessage,
           }
           eventName = incoMessage ? 'IncoGroupMessage' : 'groupMessage';
         } else if (receiver && receiver._id) {
@@ -134,7 +135,8 @@ const MessageInput = ({ socket, setMessages, messages }) => {
             senderId: user._id,
             receiverId: receiver._id,
             message,
-            createdAt: Date.now()
+            createdAt: Date.now(),
+            inco: incoMessage
           }
           eventName = incoMessage ? 'IncoMessage' : 'privateMessage';
         } else {
@@ -144,6 +146,12 @@ const MessageInput = ({ socket, setMessages, messages }) => {
 
         // newMessage = { senderId: user._id, receiverId: receiver._id, message, createdAt: Date.now() }
         incoMessage ? (!currentGroup && setMessages((prevMessages) => [...prevMessages, newMessage])) : null
+        if (!currentGroup && !currentGroup._id && !incoMessage ) {
+          setMessages((prevMessages) => [...prevMessages, newMessage])
+        }
+        // if(currentGroup && currentGroup._id && incoMessage) {
+        //   setMessages((prevMessages) => [...prevMessages, newMessage])
+        // }
         // socket.emit('privateMessage', {senderId: user._id, receiverId: receiver._id, message});
         // incoMessage ? socket.emit('IncoMessage', { senderId: user._id, receiverId: receiver._id, message, createdAt: Date.now() }) : socket.emit('privateMessage', { senderId: user._id, receiverId: receiver._id, message, createdAt: Date.now() })
         // eventName = incoMessage ? 'IncoMessage' : 'privateMessage';

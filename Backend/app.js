@@ -8,6 +8,7 @@ const { Server } = require("socket.io");
 const server = http.createServer(app);
 
 const PORT = process.env.PORT || 3000;
+
 const connectToDb = require("./db/db");
 const userRoutes = require("./routes/user.routes");
 const aiRoutes = require("./routes/ai.routes");
@@ -125,7 +126,7 @@ app.delete("/delete", async (req, res, next) => {
   }
 });
 
-server.listen(PORT, () => {
+server.listen(PORT, '0.0.0.0' ,() => {
   console.log(`Server running on port ${PORT}`);
 });
 
@@ -204,8 +205,8 @@ io.on("connection", (socket) => {
         }
         // console.log('The receiver is socket id is ',receiver.socketId)
         // io.emit('receiveMessage',message)
-        // io.to(receiver.socketId).emit("receiveMessage", {
-        io.emit("receiveMessage", {
+        io.to(receiver.socketId).emit("receiveMessage", {
+        // io.emit("receiveMessage", {
           _id: newMessage._id,
           senderId,
           receiverId,
@@ -264,10 +265,12 @@ io.on("connection", (socket) => {
         //   console.log("Receiver not found or offline", receiverId);
         // }
         // console.log('the inco message is:', receiver.socketId);
-        io.to(groupId).emit("groupMessage", {
+        io.to(groupId).emit("IncoGroupMessage", {
           senderId,
+          groupId,
           message,
-          createdAt,
+          createdAt: Date.now(),
+          inco: true,
         });
       }
     );

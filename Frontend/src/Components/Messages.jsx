@@ -29,17 +29,43 @@ const Messages = () => {
   const {currentGroup, setCurrentGroup} = useContext(GroupDataContext)
 
   const [latestMessage, setLatestMessage] = useState(null);
+  const [latestMessages, setLatestMessages] = useState({});
   const socket = useSocket();
+
+  // useEffect(() => {
+  //   if (!socket) return;
+
+  //   socket.on('receiveMessage', (data) => {
+  //     setLatestMessage(data);
+  //   });
+  //   // console.log('the latest message is ',latestMessage)
+  //   return () => socket.off('receiveMessage');
+  // }, [socket])
 
   useEffect(() => {
     if (!socket) return;
 
     socket.on('receiveMessage', (data) => {
-      setLatestMessage(data);
+      const { senderId, receiverId } = data;
+      const friendId = senderId === userId ? receiverId : senderId;
+      setLatestMessages((prev) => ({
+        ...prev,
+        [friendId]: data,
+      }));
     });
-    // console.log('the latest message is ',latestMessage)
-    return () => socket.off('receiveMessage');
-  }, [socket])
+
+    socket.on('groupMessage', (data) => {
+      setLatestMessages((prev) => ({
+        ...prev,
+        [data.groupId]: data,
+      }));
+    });
+
+    return () => {
+      socket.off('receiveMessage');
+      socket.off('groupMessage');
+    };
+  }, [socket]);
 
   const fetchFriendSuggestions = async () => {
     if (!search) {
@@ -230,12 +256,12 @@ const Messages = () => {
           {
             showUser ? (friends.map((friend) => (
               // console.log(friend)
-              <Contact key={friend} friend={friend} latestMessage={latestMessage} />
+              <Contact key={friend} friend={friend} latestMessage={latestMessages[friend]} />
             ))) : showGroup ? (
             // <GroupMessage groups={groups} />
             groups.map((group) => (
               // console.log(friend)
-              <GroupMessage key={group._id} group={group} />
+              <GroupMessage key={group._id} group={group} latestMessage={latestMessages[group._id]} />
             ))
           ) : null
           }

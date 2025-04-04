@@ -3,7 +3,7 @@ import React, { useContext, useEffect, useRef, useState } from 'react'
 import { GroupDataContext } from '../context/GroupContext';
 import WaveSurfer from 'wavesurfer.js';
 
-const Message = ({ message, currentUserId, user, deleteMessage }) => {
+const Message = ({ message, currentUserId, user, deleteMessage, showImagePreview, setShowImagePreview }) => {
 
   const [sender, setSender] = useState('')
   const [showSettings, setShowSettings] = useState(false)
@@ -194,6 +194,14 @@ const Message = ({ message, currentUserId, user, deleteMessage }) => {
   //   return () => window.removeEventListener('keydown', handleEdit)
   // }, [])
 
+  const handleImageClick = () => {
+    if (message.image) {
+      // setShowImageModal(true)
+      setShowImagePreview(message.image)
+      console.log(message.image)
+    }
+  }
+
   return (
     <div className='flex items-start gap-2 relative'>
       {
@@ -217,12 +225,12 @@ const Message = ({ message, currentUserId, user, deleteMessage }) => {
           }
         </div>
       }
-      <div className={`inline-block w-fit max-w-[250px] md:max-w-[450px] px-5 py-[4px] pt-2 break-words ${isSentByCurrentUser ? 'bg-blue-600 rounded-l-xl rounded-br-xl' : 'bg-[#141b28] rounded-r-xl rounded-bl-xl'}`}>
+      <div className={`inline-block w-fit max-w-[250px] md:max-w-[450px] ${message.image ? 'p-2': 'p-5'} py-[4px] pt-2 break-words ${isSentByCurrentUser ? 'bg-blue-600 rounded-l-xl rounded-br-xl' : 'bg-[#141b28] rounded-r-xl rounded-bl-xl'}`}>
         {
           currentGroup && <div className='text-xs font-medium'>{sender.userName}</div>
         }
         {message.image ? (
-          <img className="max-w-full h-auto rounded-lg my-2" src={message.image} alt="Shared Image" />
+          <img onClick={handleImageClick} className="cursor-pointer max-w-full h-auto rounded-lg my-2" src={message.image} alt="Shared Image" />
         ) : message.audio ? (
           // <div className="flex items-center gap-2">
           //   <button onClick={toggleAudio} className="text-white">

@@ -13,12 +13,20 @@ const Contact = ({ friend, latestMessage }) => {
 
   // console.log('the latest message is ', latestMessage)
 
+  // useEffect(() => {
+  //   if (latestMessage &&
+  //     (latestMessage.senderId === friend || latestMessage.receiverId === friend)) {
+  //     setLastMessage(latestMessage.message);
+  //     setLastMessageTime(latestMessage.createdAt)
+  //     // console.log('the latest message time is ', lastMessageTime)
+  //   }
+  // }, [latestMessage, friend]);
+
   useEffect(() => {
     if (latestMessage &&
-      (latestMessage.senderId === friend || latestMessage.receiverId === friend)) {
-      setLastMessage(latestMessage.message);
-      setLastMessageTime(latestMessage.createdAt)
-      // console.log('the latest message time is ', lastMessageTime)
+        (latestMessage.senderId === friend || latestMessage.receiverId === friend)) {
+      setLastMessage(latestMessage.message || latestMessage.audio || latestMessage.image || 'Media');
+      setLastMessageTime(latestMessage.createdAt);
     }
   }, [latestMessage, friend]);
 

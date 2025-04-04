@@ -87,23 +87,23 @@ const VideoCall = () => {
     }
 
     return (
-        <div className='h-[83vh] w-full p-5 relative'>
+        <div className='h-[83vh] w-full px-3 pt-3 pb-4 relative'>
             <video
                 ref={receiveVideoRef}
                 autoPlay
                 playsInline
-                className='h-full w-full border-2 border-gray-600 rounded-xl bg-[#172032] object-cover scale-x-[-1]'
+                className='h-full w-full border-2 border-gray-600 rounded-xl bg-[#000] object-cover scale-x-[-1]'
             ></video>
             <video
                 ref={localVideoRef}
                 autoPlay
                 muted
                 playsInline
-                className='aspect-[9/16] w-[100px] border-2 border-gray-600 rounded-xl bg-[#172032] object-cover scale-x-[-1] absolute bottom-10 right-10'
+                className='aspect-[9/16] w-[60px] md:w-[100px] border-2 border-gray-600 rounded-xl bg-[#172032] object-cover scale-x-[-1] absolute top-7 right-7'
             ></video>
             <div className='flex justify-center items-center gap-5 mt-5 text-lg absolute bottom-10 w-full'>
-                <button onClick={startCall} className='bg-green-600 px-12 py-2 rounded'>Call</button>
-                <button onClick={stopVideo} className='bg-red-600 px-12 py-2 rounded'>End</button>
+                <button onClick={startCall} className='bg-green-600 size-16 rounded-full text-4xl'><i className="ri-phone-fill"></i></button>
+                <button onClick={stopVideo} className='bg-red-600 size-16 rounded-full text-4xl rotate-[140deg]'><i className="ri-phone-fill"></i></button>
             </div>
         </div>
     );
