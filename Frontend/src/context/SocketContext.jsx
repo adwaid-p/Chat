@@ -8,29 +8,21 @@ export const SocketProvider = ({ children }) => {
   const userId = JSON.parse(localStorage.getItem('user_id'));
 
   useEffect(() => {
-    // const newSocket = io('https://chatapp-backend-sd9j.onrender.com', {
-    //   // reconnection: true,
-    //   // reconnectionAttempts: 5,
-    //   // reconnectionDelay: 1000,
-    //   // withCredentials: true,
-    //   // transports: ['websocket', 'polling']
-    //   reconnection: true,
-    //   reconnectionAttempts: Infinity,
-    //   reconnectionDelay: 1000,
-    //   transports: ['websocket', 'polling'],
-    //   // secure: true,
-    //   // rejectUnauthorized: false,
-    //   auth: {
-    //     userId: userId
-    //   }
-    // });
-
     const newSocket = io('https://chatapp-backend-sd9j.onrender.com', {
+      // reconnection: true,
+      // reconnectionAttempts: 5,
+      // reconnectionDelay: 1000,
+      // withCredentials: true,
+      // transports: ['websocket', 'polling']
       reconnection: true,
       reconnectionAttempts: Infinity,
       reconnectionDelay: 1000,
-      transports: ['websocket'], // Force WebSocket only
-      auth: { userId: userId },
+      transports: ['websocket', 'polling'],
+      // secure: true,
+      // rejectUnauthorized: false,
+      auth: {
+        userId: userId
+      }
     });
 
     // Initialize socket connection

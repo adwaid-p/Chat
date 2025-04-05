@@ -46,42 +46,22 @@ connectToDb();
 //   },
 // });
 
-// app.use(cors({
-//   origin: "https://chatapp-roan-tau.vercel.app",
-//   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-//   credentials: true,
-//   allowedHeaders: ['Content-Type', 'Authorization']
-// }));
-
-// const io = new Server(server, {
-//   cors: {
-//     origin: "https://chatapp-roan-tau.vercel.app",
-//     methods: ["GET", "POST", "OPTIONS"],
-//     credentials: true,
-//     allowedHeaders: ['Content-Type', 'Authorization'],
-//     transports: ['websocket', 'polling']
-//   },
-// });
-
+app.use(cors({
+  origin: "https://chatapp-roan-tau.vercel.app",
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  credentials: true,
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 const io = new Server(server, {
   cors: {
     origin: "https://chatapp-roan-tau.vercel.app",
     methods: ["GET", "POST", "OPTIONS"],
     credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    transports: ['websocket', 'polling']
   },
 });
-
-// Explicit CORS middleware
-app.use(cors({
-  origin: "https://chatapp-roan-tau.vercel.app",
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  credentials: true,
-  allowedHeaders: ["Content-Type", "Authorization"],
-}));
-
-app.options("*", cors());
-
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -147,15 +127,9 @@ app.delete("/delete", async (req, res, next) => {
   }
 });
 
-
-app.get("/test", (req, res) => {
-  res.json({ message: "CORS is working" });
-});
-
 server.listen(PORT, '0.0.0.0' ,() => {
   console.log(`Server running on port ${PORT}`);
 });
-
 
 io.on("connect_error", (err) => {
   console.log(`Connect error due to ${err.message}`);
