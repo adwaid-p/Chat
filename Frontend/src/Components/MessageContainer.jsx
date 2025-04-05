@@ -152,6 +152,11 @@ const MessageContainer = () => {
   }, [socket, receiver?._id, currentGroup?._id, userId])
 
 
+  if (!socket) {
+    return <div>Loading...</div>; // Fallback UI while socket initializes
+  }
+
+
   // useEffect(() => {
   //   if (!socket) return;
 
