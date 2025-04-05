@@ -18,8 +18,8 @@ export const SocketProvider = ({ children }) => {
       reconnectionAttempts: Infinity,
       reconnectionDelay: 1000,
       transports: ['websocket', 'polling'],
-      // secure: true,
-      // rejectUnauthorized: false,
+      secure: true,
+      rejectUnauthorized: false,
       auth: {
         userId: userId
       }
@@ -37,13 +37,6 @@ export const SocketProvider = ({ children }) => {
       console.error('Socket connection error:', error);
     });
 
-    newSocket.on('reconnect', (attempt) => {
-      console.log('Reconnected after', attempt, 'attempts');
-      if (userId) {
-        newSocket.emit('join', userId); // Re-join on reconnect
-      }
-    });
-
     newSocket.on('disconnect', () => {
       console.log('Socket disconnected');
     });
@@ -51,9 +44,9 @@ export const SocketProvider = ({ children }) => {
     setSocket(newSocket);
 
     return () => {
-      // if (newSocket) {
+      if (newSocket) {
         newSocket.disconnect();
-      // }
+      }
     };
   }, [userId]);
 

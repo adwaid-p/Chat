@@ -79,7 +79,6 @@ const MessageContainer = () => {
 
     socket.off('receiveMessage');
     socket.off('groupMessage');
-    socket.off('deleteMessage');
     // socket.off('typing')
 
     if (receiver && receiver._id) {
@@ -150,11 +149,6 @@ const MessageContainer = () => {
       // socket.disconnect();
     };
   }, [socket, receiver?._id, currentGroup?._id, userId])
-
-
-  if (!socket) {
-    return <div>Loading...</div>; // Fallback UI while socket initializes
-  }
 
 
   // useEffect(() => {

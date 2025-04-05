@@ -146,7 +146,7 @@ io.on("connection", (socket) => {
       );
       // console.log("user data at time of online", user);
       if (user) {
-        socket.join(userId);
+        socket.join(user._id.toString());
         io.emit("Status", `${user.userName} is online`);
         io.emit("userStatus", {
           userId: user._id,
@@ -208,39 +208,19 @@ io.on("connection", (socket) => {
         console.log(newMessage)
         if (!receiver || !receiver.socketId) {
           console.log("Receiver not found or offline", receiverId);
-          io.to(receiverId).emit("receiveMessage", {
-            _id: newMessage._id,
-            senderId,
-            receiverId,
-            message,
-            image,
-            audio,
-            createdAt: newMessage.createdAt,
-          });
-        } else {
-          io.to(receiver.socketId).emit("receiveMessage", {
-            // io.emit("receiveMessage", {
-              _id: newMessage._id,
-              senderId,
-              receiverId,
-              message,
-              image,
-              audio: audio,
-              createdAt,
-            });
         }
         // console.log('The receiver is socket id is ',receiver.socketId)
         // io.emit('receiveMessage',message)
-        // io.to(receiver.socketId).emit("receiveMessage", {
-        // // io.emit("receiveMessage", {
-        //   _id: newMessage._id,
-        //   senderId,
-        //   receiverId,
-        //   message,
-        //   image,
-        //   audio: audio,
-        //   createdAt,
-        // });
+        io.to(receiver.socketId).emit("receiveMessage", {
+        // io.emit("receiveMessage", {
+          _id: newMessage._id,
+          senderId,
+          receiverId,
+          message,
+          image,
+          audio: audio,
+          createdAt,
+        });
         // const newMessage = await MessageModel.create({senderId,receiverId,message})
         //console.log(newMessage);
         // io.to(receiver.socketId).emit('receiveMessage',message)
