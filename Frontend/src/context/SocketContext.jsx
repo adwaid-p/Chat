@@ -20,6 +20,8 @@ export const SocketProvider = ({ children }) => {
       transports: ['websocket', 'polling'],
       secure: true,
       rejectUnauthorized: false,
+
+      timeout: 60000,
       auth: {
         userId: userId
       }

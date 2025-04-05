@@ -53,13 +53,26 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
+// const io = new Server(server, {
+//   cors: {
+//     origin: "https://chatapp-roan-tau.vercel.app",
+//     methods: ["GET", "POST", "OPTIONS"],
+//     credentials: true,
+//     allowedHeaders: ['Content-Type', 'Authorization'],
+//     transports: ['websocket', 'polling']
+//   },
+// });
+
+
 const io = new Server(server, {
   cors: {
     origin: "https://chatapp-roan-tau.vercel.app",
     methods: ["GET", "POST", "OPTIONS"],
     credentials: true,
     allowedHeaders: ['Content-Type', 'Authorization'],
-    transports: ['websocket', 'polling']
+    transports: ['websocket', 'polling'],
+    pingTimeout: 60000,
+    pingInterval: 25000
   },
 });
 
@@ -194,7 +207,9 @@ io.on("connection", (socket) => {
     socket.on(
       "privateMessage",
       async ({ senderId, receiverId, message, image, audio,createdAt }) => {
-        // console.log(message)
+
+        try {
+                  // console.log(message)
         // console.log('the userId is ',senderId)
         // console.log('the receiverId is ',receiverId)
         const receiver = await userModel.findById(receiverId);
@@ -224,6 +239,9 @@ io.on("connection", (socket) => {
         // const newMessage = await MessageModel.create({senderId,receiverId,message})
         //console.log(newMessage);
         // io.to(receiver.socketId).emit('receiveMessage',message)
+        } catch (error) {
+          console.error("Error handling private message:", error);
+        }
       }
     );
     socket.on(
