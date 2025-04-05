@@ -79,6 +79,7 @@ const MessageContainer = () => {
 
     socket.off('receiveMessage');
     socket.off('groupMessage');
+    socket.off('deleteMessage');
     // socket.off('typing')
 
     if (receiver && receiver._id) {
