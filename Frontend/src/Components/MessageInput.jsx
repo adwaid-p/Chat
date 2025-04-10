@@ -91,6 +91,7 @@ const MessageInput = ({ socket, setMessages, messages }) => {
         createdAt: Date.now(),
       };
 
+      setMessages((prevMessages) => [...prevMessages, newMessage])
       const eventName = currentGroup ? 'groupMessage' : 'privateMessage';
       socket.emit(eventName, newMessage);
       setAudioBlob(null); // Clear audio after sending
