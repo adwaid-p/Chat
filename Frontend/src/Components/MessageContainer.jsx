@@ -87,13 +87,18 @@ const MessageContainer = () => {
         // console.log('entered the receive message')
         // console.log('the message is from the frontend', data.inco)
         setIncoMessage(data.inco)
-        // if((data.receiverId === userId && data.senderId === receiver._id) || (data.senderId === userId && data.receiverId === receiver._id)){
-        // setMessages((prevMessages) => [...prevMessages, data])
-        // }
-
-        if (data.senderId === receiver._id) {
-          console.log("Enterd the receive message")
-          setMessages((prevMessages) => [...prevMessages, data])
+        // Only add the message if it's from the person we're currently viewing
+        // This ensures messages from this conversation are displayed
+        if (data.senderId === receiver._id || (data.receiverId === userId && data.senderId === receiver._id)) {
+          console.log("Received message from:", data.senderId)
+          // Prevent duplicate messages by checking if it already exists
+          setMessages((prevMessages) => {
+            // Check if message already exists (by _id or by checking recent messages)
+            if (data._id && prevMessages.some(msg => msg._id === data._id)) {
+              return prevMessages; // Don't add duplicate
+            }
+            return [...prevMessages, data];
+          })
         }
         setIsTyping(false)
       })

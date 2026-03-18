@@ -145,17 +145,14 @@ const MessageInput = ({ socket, setMessages, messages }) => {
           return;
         }
 
-        // newMessage = { senderId: user._id, receiverId: receiver._id, message, createdAt: Date.now() }
-        incoMessage ? (!currentGroup && setMessages((prevMessages) => [...prevMessages, newMessage])) : null
-        if (!currentGroup && !currentGroup._id && !incoMessage ) {
+        // Add message to UI optimistically for private messages (not groups)
+        // For group messages, the socket listener will handle adding to UI
+        // For private messages, the backend doesn't emit back to sender, so we add it here
+        if (!currentGroup || !currentGroup._id) {
+          // This is a private message - add it optimistically
           setMessages((prevMessages) => [...prevMessages, newMessage])
         }
-        // if(currentGroup && currentGroup._id && incoMessage) {
-        //   setMessages((prevMessages) => [...prevMessages, newMessage])
-        // }
-        // socket.emit('privateMessage', {senderId: user._id, receiverId: receiver._id, message});
-        // incoMessage ? socket.emit('IncoMessage', { senderId: user._id, receiverId: receiver._id, message, createdAt: Date.now() }) : socket.emit('privateMessage', { senderId: user._id, receiverId: receiver._id, message, createdAt: Date.now() })
-        // eventName = incoMessage ? 'IncoMessage' : 'privateMessage';
+        // For group messages, let the socket listener add it after backend confirms
         socket.emit(eventName, newMessage);
         setMessage('');
         setImage(null)

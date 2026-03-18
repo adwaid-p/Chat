@@ -46,12 +46,14 @@ connectToDb();
 //   },
 // });
 
-app.use(cors({
-  origin: "https://chatapp-roan-tau.vercel.app",
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  credentials: true,
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+app.use(
+  cors({
+    origin: "https://chatapp-roan-tau.vercel.app",
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    credentials: true,
+    allowedHeaders: ["Content-Type", "Authorization"],
+  }),
+);
 
 // const io = new Server(server, {
 //   cors: {
@@ -63,16 +65,15 @@ app.use(cors({
 //   },
 // });
 
-
 const io = new Server(server, {
   cors: {
     origin: "https://chatapp-roan-tau.vercel.app",
     methods: ["GET", "POST", "OPTIONS"],
     credentials: true,
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    transports: ['websocket', 'polling'],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    transports: ["websocket", "polling"],
     pingTimeout: 60000,
-    pingInterval: 25000
+    pingInterval: 25000,
   },
 });
 
@@ -100,7 +101,6 @@ app.post("/upload-image", upload.single("image"), async (req, res, next) => {
   }
 });
 
-
 app.post("/upload-audio", upload.single("audio"), async (req, res, next) => {
   try {
     if (!req.file) {
@@ -123,7 +123,6 @@ app.post("/upload-audio", upload.single("audio"), async (req, res, next) => {
   }
 });
 
-
 app.delete("/delete", async (req, res, next) => {
   try {
     // console.log("entered");
@@ -140,7 +139,7 @@ app.delete("/delete", async (req, res, next) => {
   }
 });
 
-server.listen(PORT, '0.0.0.0' ,() => {
+server.listen(PORT, "0.0.0.0", () => {
   console.log(`Server running on port ${PORT}`);
 });
 
@@ -155,7 +154,7 @@ io.on("connection", (socket) => {
       const user = await userModel.findByIdAndUpdate(
         userId,
         { socketId: socket.id, isOnline: true, lastSeen: Date.now() },
-        { new: true } // Return the updated document
+        { new: true }, // Return the updated document
       );
       // console.log("user data at time of online", user);
       if (user) {
@@ -185,7 +184,7 @@ io.on("connection", (socket) => {
             lastSeen: Date.now(),
             socketId: null,
           },
-          { new: true }
+          { new: true },
         );
 
         console.log("User disconnected:");
@@ -206,49 +205,77 @@ io.on("connection", (socket) => {
 
     socket.on(
       "privateMessage",
-      async ({ senderId, receiverId, message, image, audio,createdAt }) => {
-
+      async ({ senderId, receiverId, message, image, audio, createdAt }) => {
         try {
-                  // console.log(message)
-        // console.log('the userId is ',senderId)
-        // console.log('the receiverId is ',receiverId)
-        const receiver = await userModel.findById(receiverId);
-        const newMessage = await MessageModel.create({
-          senderId,
-          receiverId,
-          message,
-          image,
-          audio,
-        });
-        console.log(newMessage)
-        if (!receiver || !receiver.socketId) {
-          console.log("Receiver not found or offline", receiverId);
-        }
-        // console.log('The receiver is socket id is ',receiver.socketId)
-        // io.emit('receiveMessage',message)
-        io.to(receiver.socketId).emit("receiveMessage", {
-        // io.emit("receiveMessage", {
-          _id: newMessage._id,
-          senderId,
-          receiverId,
-          message,
-          image,
-          audio: audio,
-          createdAt,
-        });
-        // const newMessage = await MessageModel.create({senderId,receiverId,message})
-        //console.log(newMessage);
-        // io.to(receiver.socketId).emit('receiveMessage',message)
+          // console.log(message)
+          // console.log('the userId is ',senderId)
+          // console.log('the receiverId is ',receiverId)
+          const receiver = await userModel.findById(receiverId);
+          const sender = await userModel.findById(senderId);
+          const newMessage = await MessageModel.create({
+            senderId,
+            receiverId,
+            message,
+            image,
+            audio,
+          });
+          console.log(newMessage);
+
+          // Send message confirmation to sender
+          if (sender && sender.socketId) {
+            io.to(sender.socketId).emit("receiveMessage", {
+              _id: newMessage._id,
+              senderId,
+              receiverId,
+              message,
+              image,
+              audio: audio,
+              createdAt,
+            });
+          }
+
+          // Send message to receiver
+          if (!receiver || !receiver.socketId) {
+            console.log("Receiver not found or offline", receiverId);
+          }
+          // console.log('The receiver is socket id is ',receiver.socketId)
+          // io.emit('receiveMessage',message)
+          io.to(receiver.socketId).emit("receiveMessage", {
+            // io.emit("receiveMessage", {
+            _id: newMessage._id,
+            senderId,
+            receiverId,
+            message,
+            image,
+            audio: audio,
+            createdAt,
+          });
+          // const newMessage = await MessageModel.create({senderId,receiverId,message})
+          //console.log(newMessage);
+          // io.to(receiver.socketId).emit('receiveMessage',message)
         } catch (error) {
           console.error("Error handling private message:", error);
         }
-      }
+      },
     );
     socket.on(
       "IncoMessage",
       async ({ senderId, receiverId, message, createdAt }) => {
         const receiver = await userModel.findById(receiverId);
+        const sender = await userModel.findById(senderId);
         // console.log(receiver);
+
+        // Send confirmation to sender
+        if (sender && sender.socketId) {
+          io.to(sender.socketId).emit("receiveMessage", {
+            senderId,
+            message,
+            createdAt,
+            inco: true,
+          });
+        }
+
+        // Send to receiver
         if (!receiver || !receiver.socketId) {
           console.log("Receiver not found or offline", receiverId);
         }
@@ -259,11 +286,11 @@ io.on("connection", (socket) => {
           createdAt,
           inco: true,
         });
-      }
+      },
     );
     socket.on(
       "groupMessage",
-      async ({ senderId, groupId, message, image, audio,createdAt }) => {
+      async ({ senderId, groupId, message, image, audio, createdAt }) => {
         const newMessage = await MessageModel.create({
           senderId,
           groupId,
@@ -279,16 +306,12 @@ io.on("connection", (socket) => {
           audio: audio,
           createdAt: newMessage.createdAt,
         });
-      }
+      },
     );
     socket.on(
       "IncoGroupMessage",
       async ({ senderId, groupId, message, createdAt }) => {
-        // const receiver = await userModel.findById(receiverId);
-        // if (!receiver || !receiver.socketId) {
-        //   console.log("Receiver not found or offline", receiverId);
-        // }
-        // console.log('the inco message is:', receiver.socketId);
+        // Send to all group members (including sender for confirmation)
         io.to(groupId).emit("IncoGroupMessage", {
           senderId,
           groupId,
@@ -296,7 +319,7 @@ io.on("connection", (socket) => {
           createdAt: Date.now(),
           inco: true,
         });
-      }
+      },
     );
 
     socket.on("deleteMessage", async ({ messageId, receiverId, groupId }) => {
