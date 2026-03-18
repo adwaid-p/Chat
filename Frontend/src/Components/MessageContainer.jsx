@@ -82,39 +82,20 @@ const MessageContainer = () => {
     // socket.off('typing')
 
     if (receiver && receiver._id) {
-      // socket.on('receiveMessage', (data) => {
-      //   // console.log('the message is',data)
-      //   // console.log('entered the receive message')
-      //   // console.log('the message is from the frontend', data.inco)
-      //   setIncoMessage(data.inco)
-      //   // Only add the message if it's from the person we're currently viewing
-      //   // This ensures messages from this conversation are displayed
-      //   if (data.senderId === receiver._id || (data.receiverId === userId && data.senderId === receiver._id)) {
-      //     console.log("Received message from:", data.senderId)
-      //     // Prevent duplicate messages by checking if it already exists
-      //     setMessages((prevMessages) => {
-      //       // Check if message already exists (by _id or by checking recent messages)
-      //       if (data._id && prevMessages.some(msg => msg._id === data._id)) {
-      //         return prevMessages; // Don't add duplicate
-      //       }
-      //       return [...prevMessages, data];
-      //     })
-      //   }
-      //   setIsTyping(false)
-      // })
-
       socket.on('receiveMessage', (data) => {
+        // console.log('the message is',data)
+        // console.log('entered the receive message')
+        // console.log('the message is from the frontend', data.inco)
         setIncoMessage(data.inco)
-
-        // Allow incoming messages from them OR outgoing messages synced from my other device
-        const isMessageToMe = data.senderId === receiver._id && data.receiverId === userId;
-        const isMessageFromMyOtherDevice = data.senderId === userId && data.receiverId === receiver._id;
-
-        if (isMessageToMe || isMessageFromMyOtherDevice) {
+        // Only add the message if it's from the person we're currently viewing
+        // This ensures messages from this conversation are displayed
+        if (data.senderId === receiver._id || (data.receiverId === userId && data.senderId === receiver._id)) {
+          console.log("Received message from:", data.senderId)
+          // Prevent duplicate messages by checking if it already exists
           setMessages((prevMessages) => {
-            // Prevent duplicates
+            // Check if message already exists (by _id or by checking recent messages)
             if (data._id && prevMessages.some(msg => msg._id === data._id)) {
-              return prevMessages;
+              return prevMessages; // Don't add duplicate
             }
             return [...prevMessages, data];
           })
