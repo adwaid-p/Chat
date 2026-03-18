@@ -203,15 +203,66 @@ io.on("connection", (socket) => {
       }
     });
 
+    // socket.on(
+    //   "privateMessage",
+    //   async ({ senderId, receiverId, message, image, audio, createdAt }) => {
+    //     try {
+    //       // console.log(message)
+    //       // console.log('the userId is ',senderId)
+    //       // console.log('the receiverId is ',receiverId)
+    //       const receiver = await userModel.findById(receiverId);
+    //       const sender = await userModel.findById(senderId);
+    //       const newMessage = await MessageModel.create({
+    //         senderId,
+    //         receiverId,
+    //         message,
+    //         image,
+    //         audio,
+    //       });
+    //       console.log(newMessage);
+
+    //       // Send message confirmation to sender
+    //       if (sender && sender.socketId) {
+    //         io.to(sender.socketId).emit("receiveMessage", {
+    //           _id: newMessage._id,
+    //           senderId,
+    //           receiverId,
+    //           message,
+    //           image,
+    //           audio: audio,
+    //           createdAt,
+    //         });
+    //       }
+
+    //       // Send message to receiver
+    //       if (!receiver || !receiver.socketId) {
+    //         console.log("Receiver not found or offline", receiverId);
+    //       }
+    //       // console.log('The receiver is socket id is ',receiver.socketId)
+    //       // io.emit('receiveMessage',message)
+    //       io.to(receiver.socketId).emit("receiveMessage", {
+    //         // io.emit("receiveMessage", {
+    //         _id: newMessage._id,
+    //         senderId,
+    //         receiverId,
+    //         message,
+    //         image,
+    //         audio: audio,
+    //         createdAt,
+    //       });
+    //       // const newMessage = await MessageModel.create({senderId,receiverId,message})
+    //       //console.log(newMessage);
+    //       // io.to(receiver.socketId).emit('receiveMessage',message)
+    //     } catch (error) {
+    //       console.error("Error handling private message:", error);
+    //     }
+    //   },
+    // );
+
     socket.on(
       "privateMessage",
       async ({ senderId, receiverId, message, image, audio, createdAt }) => {
         try {
-          // console.log(message)
-          // console.log('the userId is ',senderId)
-          // console.log('the receiverId is ',receiverId)
-          const receiver = await userModel.findById(receiverId);
-          const sender = await userModel.findById(senderId);
           const newMessage = await MessageModel.create({
             senderId,
             receiverId,
@@ -219,29 +270,9 @@ io.on("connection", (socket) => {
             image,
             audio,
           });
-          console.log(newMessage);
 
-          // Send message confirmation to sender
-          if (sender && sender.socketId) {
-            io.to(sender.socketId).emit("receiveMessage", {
-              _id: newMessage._id,
-              senderId,
-              receiverId,
-              message,
-              image,
-              audio: audio,
-              createdAt,
-            });
-          }
-
-          // Send message to receiver
-          if (!receiver || !receiver.socketId) {
-            console.log("Receiver not found or offline", receiverId);
-          }
-          // console.log('The receiver is socket id is ',receiver.socketId)
-          // io.emit('receiveMessage',message)
-          io.to(receiver.socketId).emit("receiveMessage", {
-            // io.emit("receiveMessage", {
+          // Send to ALL devices connected by the sender (Laptop + Mobile)
+          io.to(senderId.toString()).emit("receiveMessage", {
             _id: newMessage._id,
             senderId,
             receiverId,
@@ -250,14 +281,23 @@ io.on("connection", (socket) => {
             audio: audio,
             createdAt,
           });
-          // const newMessage = await MessageModel.create({senderId,receiverId,message})
-          //console.log(newMessage);
-          // io.to(receiver.socketId).emit('receiveMessage',message)
+
+          // Send to ALL devices connected by the receiver (Laptop + Mobile)
+          io.to(receiverId.toString()).emit("receiveMessage", {
+            _id: newMessage._id,
+            senderId,
+            receiverId,
+            message,
+            image,
+            audio: audio,
+            createdAt,
+          });
         } catch (error) {
           console.error("Error handling private message:", error);
         }
       },
     );
+    
     socket.on(
       "IncoMessage",
       async ({ senderId, receiverId, message, createdAt }) => {
